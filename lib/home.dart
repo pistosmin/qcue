@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:carousel_pro/carousel_pro.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -14,6 +14,18 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
+  Widget gridSection = new Expanded(
+    flex: 1,
+    child: new GridView.count(
+        crossAxisCount: 3,
+        childAspectRatio: 1.0,
+        mainAxisSpacing: 4.0,
+        crossAxisSpacing: 4.0,
+        children: _generateGridItems().map((String value) {
+          return _displayGridItem(value);
+        }).toList()),
+  );
+
   final List<Tab> myTabs = <Tab>[
     Tab(text: 'LEFT'),
     Tab(text: 'RIGHT'),
@@ -72,11 +84,12 @@ class HomePageState extends State<HomePage>
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             AspectRatio(
-              aspectRatio:10/9,
+              aspectRatio: 10 / 9,
               child: new Image.network(
                 record.image,
                 height: 100.0,
                 width: 100.0,
+                fit: BoxFit.fill,
               ),
             ),
             Expanded(
@@ -127,55 +140,19 @@ class HomePageState extends State<HomePage>
               ],
             );
           } else {
-            return ListView(
+            return Column(
               children: <Widget>[
-                Container(
-                  padding: EdgeInsets.all(10.0),
-                  child: Column(
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          new Container(
-                            padding: EdgeInsets.only(right: 20.0),
-                            width: 100.0,
-                            height: 100.0,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: new DecorationImage(
-                                  fit: BoxFit.fill,
-                                  image: new NetworkImage(
-                                    snapshot.data.photoUrl,
-                                  ),
-                                )),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(
-                              left: 10.0,
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(snapshot.data.displayName),
-                                Row(
-                                  children: <Widget>[
-                                    Container(
-                                      child: Column(
-                                        children: <Widget>[
-                                          // Text(Firestore.instance.collection('ongoing_quests').snapshots().length.toString()),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                new SizedBox(
+                    height: 50.0,
+                    width: double.infinity,
+                    child: new Carousel(
+                      images: [
+                        new NetworkImage(
+                            'https://cdn-images-1.medium.com/max/2000/1*GqdzzfB_BHorv7V2NV7Jgg.jpeg'),
+                        new NetworkImage(
+                            'https://cdn-images-1.medium.com/max/2000/1*wnIEgP1gNMrK5gZU7QS0-A.jpeg'),
+                      ],
+                    )),
                 DefaultTabController(
                   length: 3,
                   initialIndex: 0,
@@ -214,6 +191,14 @@ class HomePageState extends State<HomePage>
                     ],
                   ),
                 ),
+                ListTile(
+                  title: Text(
+                    '카테고리별 퀘스트 보기',
+                    textAlign: TextAlign.center,
+                  ),
+                  trailing: new Icon(Icons.arrow_forward_ios),
+                ),
+                gridSection,
               ],
             );
           }
@@ -263,4 +248,37 @@ class Record {
 
   @override
   String toString() => "Record<$name:$writer>";
+}
+
+List<String> _generateGridItems() {
+  List<String> gridItems = new List<String>();
+  for (int i = 0; i < 6; i++) {
+    if(i==0){
+      gridItems.add('study');
+    }
+    else if(i==1){
+      gridItems.add('sports');
+    }
+    else if(i==2){
+      gridItems.add('diet');
+    }
+    else if(i==3){
+      gridItems.add('travel');
+    }
+    else if(i==4){
+      gridItems.add('cook');
+    }
+    else if(i==5){
+      gridItems.add('all');
+    }
+  }
+  return gridItems;
+}
+
+Widget _displayGridItem(String value) {
+  return new Container(
+    padding: new EdgeInsets.all(8.0),
+    color: new Color(0XFFFFFFFF),
+    child: new Text(value),
+  );
 }
