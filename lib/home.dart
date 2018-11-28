@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
+import 'category.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -14,7 +15,8 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  Widget gridSection = new Expanded(
+  Widget gridSection(BuildContext context){
+    return new Expanded(
     flex: 1,
     child: new GridView.count(
         crossAxisCount: 3,
@@ -22,9 +24,10 @@ class HomePageState extends State<HomePage>
         mainAxisSpacing: 4.0,
         crossAxisSpacing: 4.0,
         children: _generateGridItems().map((String value) {
-          return _displayGridItem(value);
+          return _displayGridItem(value, context);
         }).toList()),
   );
+  }
 
   final List<Tab> myTabs = <Tab>[
     Tab(text: 'LEFT'),
@@ -119,7 +122,7 @@ class HomePageState extends State<HomePage>
     return Scaffold(
       appBar: AppBar(
         title: Text("Qcue"),
-        backgroundColor: Colors.orange[800],
+        // backgroundColor: Colors.orange[800],
       ),
       body: StreamBuilder(
         stream: FirebaseAuth.instance.currentUser().asStream(),
@@ -147,8 +150,7 @@ class HomePageState extends State<HomePage>
                     width: double.infinity,
                     child: new Carousel(
                       images: [
-                        new NetworkImage(
-                            'https://cdn-images-1.medium.com/max/2000/1*GqdzzfB_BHorv7V2NV7Jgg.jpeg'),
+                        new AssetImage('assets/banner.jpg'),
                         new NetworkImage(
                             'https://cdn-images-1.medium.com/max/2000/1*wnIEgP1gNMrK5gZU7QS0-A.jpeg'),
                       ],
@@ -159,6 +161,7 @@ class HomePageState extends State<HomePage>
                   child: Column(
                     children: <Widget>[
                       TabBar(
+                        indicatorColor: Theme.of(context).primaryColor,
                         labelColor: Colors.black,
                         tabs: <Widget>[
                           Tab(
@@ -198,7 +201,7 @@ class HomePageState extends State<HomePage>
                   ),
                   trailing: new Icon(Icons.arrow_forward_ios),
                 ),
-                gridSection,
+                gridSection(context),
               ],
             );
           }
@@ -211,6 +214,7 @@ class HomePageState extends State<HomePage>
           new BottomNavigationBarItem(
             icon: Icon(Icons.home),
             title: Text('Home'),
+            backgroundColor: Theme.of(context).primaryColor,
           ),
           new BottomNavigationBarItem(
             icon: Icon(Icons.mail),
@@ -253,32 +257,137 @@ class Record {
 List<String> _generateGridItems() {
   List<String> gridItems = new List<String>();
   for (int i = 0; i < 6; i++) {
-    if(i==0){
+    if (i == 0) {
       gridItems.add('study');
-    }
-    else if(i==1){
+    } else if (i == 1) {
       gridItems.add('sports');
-    }
-    else if(i==2){
+    } else if (i == 2) {
       gridItems.add('diet');
-    }
-    else if(i==3){
+    } else if (i == 3) {
       gridItems.add('travel');
-    }
-    else if(i==4){
+    } else if (i == 4) {
       gridItems.add('cook');
-    }
-    else if(i==5){
+    } else if (i == 5) {
       gridItems.add('all');
     }
   }
   return gridItems;
 }
 
-Widget _displayGridItem(String value) {
+Widget _generateGridIcons(String value, BuildContext context) {
+  if (value == 'study') {
+    return Container(
+      child: IconButton(
+        icon: Icon(Icons.create),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CategoryPage(
+                    category: value,
+                  ),
+            ),
+          );
+        },
+      ),
+    );
+  } else if (value == 'sports') {
+    return Container(
+      child: IconButton(
+        icon: Icon(Icons.directions_bike),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CategoryPage(
+                    category: value,
+                  ),
+            ),
+          );
+        },
+      ),
+    );
+  } else if (value == 'diet') {
+    return Container(
+      child: IconButton(
+        icon: Icon(Icons.directions_run),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CategoryPage(
+                    category: value,
+                  ),
+            ),
+          );
+        },
+      ),
+    );
+  } else if (value == 'travel') {
+    return Container(
+      child: IconButton(
+        icon: Icon(Icons.map),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CategoryPage(
+                    category: value,
+                  ),
+            ),
+          );
+        },
+      ),
+    );
+  } else if (value == 'cook') {
+    return Container(
+      child: IconButton(
+        icon: Icon(Icons.fastfood),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CategoryPage(
+                    category: value,
+                  ),
+            ),
+          );
+        },
+      ),
+    );
+  } else if (value == 'all') {
+    return Container(
+      child: IconButton(
+        icon: Icon(Icons.favorite),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CategoryPage(
+                    category: value,
+                  ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+Widget _displayGridItem(String value, BuildContext context) {
   return new Container(
     padding: new EdgeInsets.all(8.0),
-    color: new Color(0XFFFFFFFF),
-    child: new Text(value),
+    color: new Color.fromRGBO(217, 232, 245, 1),
+    child: new Center(
+      child: Container(
+        padding: EdgeInsets.only(top: 20.0),
+        child: Column(
+          children: <Widget>[
+            _generateGridIcons(value, context),
+            new Text(value),
+          ],
+        ),
+      ),
+    ),
   );
 }
