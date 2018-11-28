@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'category.dart';
+import 'add.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -122,6 +123,23 @@ class HomePageState extends State<HomePage>
     return Scaffold(
       appBar: AppBar(
         title: Text("Qcue"),
+        actions: <Widget>[
+          new IconButton(
+            icon: new Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddPage(),
+                ),
+              );
+            },
+          ),
+
+        ],
         // backgroundColor: Colors.orange[800],
       ),
       body: StreamBuilder(
