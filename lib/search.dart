@@ -1,11 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class SearchPage extends StatelessWidget{
+class SearchPage extends StatefulWidget{
+  String query='';
+  bool searched=false;
+  @override
+  SearchPageState createState() {
+    return new SearchPageState();
+  }
+}
 
+class SearchPageState extends State<SearchPage> {
+
+  final _queryController = TextEditingController();
   Widget _buildBody(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection('ongoing_quests').snapshots(),
+      stream: Firestore.instance.collection('ongoing_quests').where('name',isEqualTo :widget.query).snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LinearProgressIndicator();
         return Container(
@@ -27,6 +37,7 @@ class SearchPage extends StatelessWidget{
     }
     return documents.map((ongoing_quests) {
       final record = Record.fromSnapshot(ongoing_quests);
+      print(ongoing_quests.data.toString());
       return Card(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,12 +81,37 @@ class SearchPage extends StatelessWidget{
         title: Text('Search'),
         backgroundColor: Colors.orange[800],
       ),
-      body: Container(
-        child: _buildBody(context),
-      ),
+      body: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[            
+              Expanded(
+                child: TextField(
+                  controller: _queryController,
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.search),
+                onPressed: (){
+                  setState(() {
+                  widget.searched=true;
+                    widget.query=_queryController.text;
+                    build(context);
+                  });
+                },
+              )
+            ],
+          ),
+          Flexible(
+            child:
+            widget.searched?  _buildBody(context): new Container(width: 1,height: 1,),
+            
+          ),
+
+        ],
+      )
     );
   }
-
 }
 
 class Record {
