@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'category.dart';
 import 'add.dart';
+import 'search.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -138,9 +139,17 @@ class HomePageState extends State<HomePage>
               );
             },
           ),
-
-        ],
         // backgroundColor: Colors.orange[800],
+          IconButton(
+            icon: new Icon(Icons.search),
+            onPressed: (){
+              Navigator.of(context).push(
+                new MaterialPageRoute(builder: (context) => new SearchPage()),
+              );
+            },
+          )
+        ],
+        backgroundColor: Colors.orange[800],
       ),
       body: StreamBuilder(
         stream: FirebaseAuth.instance.currentUser().asStream(),
