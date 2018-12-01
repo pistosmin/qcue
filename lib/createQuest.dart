@@ -17,102 +17,303 @@ import 'questList.dart';
 import 'quest.dart';
 import 'DateTimeItem.dart';
 
-enum DismissDialogAction {
-  cancel,
-  discard,
-  save,
-}
-
-class DateTimeItem extends StatelessWidget {
-  DateTimeItem({Key key, DateTime dateTime, @required this.onChanged})
-      : assert(onChanged != null),
-        date = DateTime(dateTime.year, dateTime.month, dateTime.day),
-        time = TimeOfDay(hour: dateTime.hour, minute: dateTime.minute),
-        super(key: key);
-
-  final DateTime date;
-  final TimeOfDay time;
-  final ValueChanged<DateTime> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-
-    return DefaultTextStyle(
-        style: theme.textTheme.subhead,
-        child: Row(children: <Widget>[
-          Expanded(
-              child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  decoration: BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(color: theme.dividerColor))),
-                  child: InkWell(
-                      onTap: () {
-                        showDatePicker(
-                                context: context,
-                                initialDate: date,
-                                firstDate:
-                                    date.subtract(const Duration(days: 30)),
-                                lastDate: date.add(const Duration(days: 30)))
-                            .then<void>((DateTime value) {
-                          if (value != null)
-                            onChanged(DateTime(value.year, value.month,
-                                value.day, time.hour, time.minute));
-                        });
-                      },
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(DateFormat('EEE, MMM d yyyy').format(date)),
-                            const Icon(Icons.arrow_drop_down,
-                                color: Colors.black54),
-                          ])))),
-          Container(
-              margin: const EdgeInsets.only(left: 8.0),
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              decoration: BoxDecoration(
-                  border:
-                      Border(bottom: BorderSide(color: theme.dividerColor))),
-              child: InkWell(
-                  onTap: () {
-                    showTimePicker(context: context, initialTime: time)
-                        .then<void>((TimeOfDay value) {
-                      if (value != null)
-                        onChanged(DateTime(date.year, date.month, date.day,
-                            value.hour, value.minute));
-                    });
-                  },
-                  child: Row(children: <Widget>[
-                    Text('${time.format(context)}'),
-                    const Icon(Icons.arrow_drop_down, color: Colors.black54),
-                  ])))
-        ]));
-  }
-}
-
 class CreateQuestPage extends StatefulWidget {
   @override
-  CreateQuestPageState createState() => new CreateQuestPageState();
+  CreateQuesState createState() => new CreateQuesState();
 }
 
-class CreateQuestPageState extends State<CreateQuestPage> {
-  DateTime _fromDateTime = DateTime.now();
-  DateTime _toDateTime = DateTime.now();
+class CreateQuesState extends State<CreateQuestPage> {
+  // firebase instance
+  final FirebaseStorage storage = FirebaseStorage.instance;
 
-  bool _allDayValue = false;
+  // text editing controllers of the list -> title, description, tags
+  final _questTitleController = TextEditingController();
+  final _questDesctiptionController = TextEditingController();
+  final _questTagController = TextEditingController();
+
+  // quest lists parameters
+  String _creatorUID;
+  String _creatorName;
+
+  String _questTitle;
+  String _questDescription;
+
+  DateTime _dateEventStart = DateTime.now();
+  DateTime _dateEventEnd = DateTime.now();
+  DateTime _dateCreated;
+  DateTime _dateModified;
+
+  String _location;
+  List<String> _questTag = new List();
+  String category;
+
+  String _imageUrl;
+  File _image;
+  bool _isPublic = false;
+  bool _isPeriod = false;
+  bool _isAllDay = false;
+
+  // flags for the creating quest list
+  //static bool uploadFlag = true;
   bool _saveNeeded = false;
-  bool _hasLocation = false;
-  bool _hasName = false;
-  String _eventName;
+  bool _hasTitle = false;
+  bool _hasDescription = false;
 
-  bool _hasPeriod = false;
+  String defaultImageUrl =
+      'https://firebasestorage.googleapis.com/v0/b/realfinal-a0b57.appspot.com/o/default.png?alt=media&token=b1d44724-0984-4232-969c-29564b4d6119';
 
-  String dropdownValue1;
-  String dropdownValue2;
+  Future getImage() async {
+    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    // uploadFlag = false;
+    setState(() {
+      _image = image;
+    });
+  }
+
+  Future _getFirebaseUser() async{
+    StreamBuilder(
+      stream: FirebaseAuth.instance.currentUser().asStream(),
+      builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
+        _creatorUID = snapshot.data.uid;
+        _creatorName = snapshot.data.displayName;
+      },
+    );
+  }
+
+  Widget _addQuestList() {
+    //add Quest List
+    // return StreamBuilder(
+    //   stream: FirebaseAuth.instance.currentUser().asStream(),
+    //   builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
+        return Form(
+          onWillPop: _onWillPop,
+          child: Column(
+                // mainAxisAlignment: MainAxisAlignment.center,
+                // crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Center(
+                    child: _image == null
+                        ? new Image.network(
+                            defaultImageUrl,
+                            height: 100,
+                          )
+                        : new Image.file(
+                            _image,
+                            height: 100.0,
+                          ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.camera_alt),
+                    onPressed: getImage,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    alignment: Alignment.bottomLeft,
+                    child: TextField(
+                      controller: _questTitleController,
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        filled: true,
+                        labelText: 'New List Title',
+                      ),
+                      onChanged: (String value) {
+                        setState(() {
+                          _hasTitle = value.isNotEmpty;
+                          if (_hasTitle) {
+                            _questTitle = value;
+                            _saveNeeded = true;
+                          }
+                        });
+                      }
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    alignment: Alignment.bottomLeft,
+                    child: TextField(
+                      controller: _questDesctiptionController,
+                      decoration: InputDecoration(
+                        filled: true,
+                        labelText: 'Enter The Description',
+                      ),
+                      onChanged: (String value) {
+                        setState(() {
+                          _hasDescription = value.isNotEmpty;
+                          if (_hasDescription) {
+                            _questDescription = value;
+                            _saveNeeded = true;
+                          }
+                        });
+                      },
+                      maxLines: 3,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10.0,
+                  ),              
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    alignment: Alignment.bottomLeft,
+                    child: TextField(
+                      controller: _questTagController,
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        filled: true,
+                        labelText: 'Add Tag',
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.add_circle),
+                    onPressed: null,
+                  ),
+                  //TODO add버튼을 누르면 태그가 추가되고 추가된 태그가 줄줄히 뜨도록 지울 수 있는 태그 목록을 만든다
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Container(
+                    child: Row(
+                      children: <Widget> [
+                        Checkbox(
+                            value: _isPublic,
+                            onChanged: (bool value) {
+                              setState(() {
+                                _isPublic = value;
+                              });
+                            },
+                          ),
+                        const Text('공개'),
+                      ]
+                    )
+                  ),
+                  Container(
+                    child: Row(
+                      children: <Widget> [
+                        Checkbox(
+                          value: _isPeriod,
+                          onChanged: (bool value) {
+                            setState(() {
+                              _isPeriod = value;
+                            });
+                          },
+                        ),
+                        const Text('기간'),
+                      ]
+                    )
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text('시작',),
+                        DateTimeItem(
+                          dateTime: _dateEventStart,
+                          onChanged: (DateTime value) {
+                            setState(() {
+                              _dateEventStart = value;
+                            });
+                          }
+                        )
+                      ]
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text('끝',),
+                        DateTimeItem(
+                          dateTime: _dateEventEnd,
+                          onChanged: (DateTime value) {
+                            setState(() {
+                              _dateEventEnd = value;
+                            });
+                          }
+                        ),
+                      ]
+                    ),
+                  ),
+                  Container(
+                    child: Row(
+                      children: <Widget> [
+                        Checkbox(
+                          value: _isAllDay,
+                          onChanged: (bool value) {
+                            setState(() {
+                              _isAllDay = value;
+                            });
+                          },
+                        ),
+                        const Text('하루 종일인가요?'),
+                      ]
+                    )
+                  ),                  
+
+
+                  RaisedButton(
+                    child: Text('CREATE LIST'),
+                    //form validation 추가
+                    onPressed: () async {
+                      if (_image == null) {
+                        _imageUrl = defaultImageUrl;
+                      } else {
+                        final StorageReference refer = storage.ref().child('picture').child(DateTime.now().toString());
+                        final StorageUploadTask task = refer.putFile(_image);
+                        _imageUrl = await (await task.onComplete).ref.getDownloadURL();                                  
+                      }
+
+                      await _getFirebaseUser();
+                      // _questTitle = _questTitleController.text;
+                      // _questDescription = _questDesctiptionController.text;
+
+                      final String _questUid = Uuid().v1();
+
+                      // _dateEventStart = DateTime.now();
+                      // _dateEventEnd = DateTime.now();
+                      _dateCreated = DateTime.now();
+                      _dateModified = DateTime.now();
+
+                      Firestore.instance.collection('questLists').document(_questUid).setData({
+                        'listUID': _questUid,
+                        'listTitle': _questTitle,
+                        'listDescription': _questDescription,
+
+                        'creatorUID': _creatorUID,
+                        'creatorName': _creatorName,
+
+                        'listImageUrl': _imageUrl,
+
+                        'category': category,
+                        'listTag': _questTag,
+
+                        // 'location': _location,
+                        'isPublic' : _isPublic,
+                        'isPeriod' : _isPeriod,
+                        'dateEventStart': _dateEventStart,
+                        'dateEventEnd': _dateEventEnd,
+
+                        'dateCreated': _dateCreated,
+                        'dateModified': _dateModified,
+                      });
+                      print('Upload Complete');
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+        );
+    //   }
+    // );
+  }
 
   Future<bool> _onWillPop() async {
-    _saveNeeded = _hasLocation || _hasName || _saveNeeded;
+    // TODO 타이틀은 없고 디스크립션이 있을 때 자동으로 제목없음 이라는 타이틀과 함께 퀘스트를 생성할 것
+    _saveNeeded = _hasTitle || _saveNeeded; //_hasLocation || _hasName || _saveNeeded;
     if (!_saveNeeded) return true;
 
     final ThemeData theme = Theme.of(context);
@@ -142,150 +343,18 @@ class CreateQuestPageState extends State<CreateQuestPage> {
           },
         ) ??
         false;
-  }
+  }  
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_hasName ? _eventName : '퀘스트 만들기'),
-        actions: <Widget> [
-          FlatButton(
-            child: Text('저장', style: theme.textTheme.body1.copyWith(color: Colors.white)),
-            onPressed: () {
-              Navigator.pop(context, DismissDialogAction.save);
-            }
+        appBar: AppBar(
+          title: Text(_hasTitle ? _questTitle : '새로운 리스트'),
+          actions: <Widget>[],
+        ),
+        body: SingleChildScrollView(
+            child: _addQuestList()
           )
-        ]      ),
-      body: Form(
-        onWillPop: _onWillPop,
-        child: ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: <Widget>[
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              alignment: Alignment.bottomLeft,
-              child: TextField(
-                decoration: const InputDecoration(
-                  labelText: '퀘스트 이름',
-                  filled: true
-                ),
-                // style: theme.textTheme.headline,
-                onChanged: (String value) {
-                  setState(() {
-                    _hasName = value.isNotEmpty;
-                    if (_hasName) {
-                      _eventName = value;
-                      _saveNeeded = true;
-                    }
-                  });
-                }
-              )
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              alignment: Alignment.bottomLeft,
-              child: TextField(
-                decoration: const InputDecoration(
-                  labelText: '장소',
-                  hintText: '어디서 하나요?',
-                  filled: true
-                ),
-                onChanged: (String value) {
-                  setState(() {
-                    _hasLocation = value.isNotEmpty;
-                  });
-                }
-              )
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('기간이 있나요?',),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: theme.dividerColor)) //theme.dividerColor
-                  ),
-                  child: Row(
-                    children: <Widget> [
-                      Checkbox(
-                        value: _hasPeriod,
-                        onChanged: (bool value) {
-                          setState(() {
-                            _hasPeriod = value;
-                            _saveNeeded = true;
-                          });
-                        }
-                      ),
-                      const Text('일정'),
-                    ]
-                  )
-                ),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('시작',),
-                DateTimeItem(
-                  dateTime: _fromDateTime,
-                  onChanged: (DateTime value) {
-                    setState(() {
-                      _fromDateTime = value;
-                      _saveNeeded = true;
-                    });
-                  }
-                )
-              ]
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('끝',),
-                DateTimeItem(
-                  dateTime: _toDateTime,
-                  onChanged: (DateTime value) {
-                    setState(() {
-                      _toDateTime = value;
-                      _saveNeeded = true;
-                    });
-                  }
-                ),
-                const Text('All-day'),
-              ]
-            ),
-            Container(
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: Colors.black)) //theme.dividerColor
-              ),
-              child: Row(
-                children: <Widget> [
-                  Checkbox(
-                    value: _allDayValue,
-                    onChanged: (bool value) {
-                      setState(() {
-                        _allDayValue = value;
-                        _saveNeeded = true;
-                      });
-                    }
-                  ),
-                  const Text('All-day'),
-                ]
-              )
-            )
-          ]
-          .map<Widget>((Widget child) {
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              height: 96.0,
-              child: child
-            );
-          })
-          .toList()
-        )
-      ),
-    );
+        );
   }
 }

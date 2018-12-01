@@ -20,7 +20,7 @@ class QuestList {
   // final List<Quest> questList;
 
   final bool isPublic;
-  final bool isPeriod;
+  final bool hasPeriod;
   final DateTime dateEventStart;
   final DateTime dateEventEnd;
   final DateTime dateCreated;
@@ -48,8 +48,8 @@ class QuestList {
         listImageUrl = map['listImageUrl'],
         listImage = map['listImage'],
         
-        isPublic = map['listImage'],
-        isPeriod = map['listImage'],
+        isPublic = map['isPublic'],
+        hasPeriod = map['hasPeriod'],
         dateEventStart = map['dateEventStart'],
         dateEventEnd = map['dateEventEnd'],
         dateCreated = map['dateCreated'],
@@ -61,4 +61,3 @@ class QuestList {
   @override
   String toString() => "Quest List<$listTitle:$creatorName>";
 }
-

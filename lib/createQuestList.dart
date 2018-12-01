@@ -17,7 +17,6 @@ import 'questList.dart';
 import 'quest.dart';
 import 'DateTimeItem.dart';
 
-
 class CreateQuestListPage extends StatefulWidget {
   @override
   CreateQuestListState createState() => new CreateQuestListState();
@@ -313,7 +312,7 @@ class CreateQuestListState extends State<CreateQuestListPage> {
 
   Future<bool> _onWillPop() async {
     // TODO 타이틀은 없고 디스크립션이 있을 때 자동으로 제목없음 이라는 타이틀과 함께 퀘스트를 생성할 것
-    _saveNeeded = _hasTitle || _saveNeeded;
+    _saveNeeded = _hasTitle || _saveNeeded; //_hasLocation || _hasName || _saveNeeded;
     if (!_saveNeeded) return true;
 
     final ThemeData theme = Theme.of(context);

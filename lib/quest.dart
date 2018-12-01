@@ -2,54 +2,56 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'quest.dart';
 
 class Quest {
-  final String listUid;
+  final String questUid;
   final DocumentReference reference;
 
-  final String listTitle;
-  final String listDescription;
+  final String questTitle;
+  final String questDescription;
   final String creatorName;
   final String creatorUID;
 
-  final String listImageUrl;
-  final String listImage;
+  final String questImageUrl;
+  final String questImage;
 
-  final String listCategory;
-  final List<String> listTag;
+  final String questLocation;
+  final String questCategory;
+  final List<String> questTag;
 
   // final int questNum;
   // final List<Quest> questList;
 
   final bool isPublic;
-  final bool isPeriod;
+  final bool hasPeriod;
   final DateTime dateEventStart;
   final DateTime dateEventEnd;
   final DateTime dateCreated;
   final DateTime dateModified;
 
   Quest.fromMap(Map<String, dynamic> map, {this.reference})
-      : assert(map['listTitle'] != null),
-        assert(map['description'] != null),
-        assert(map['creator'] != null),
+      : assert(map['questTitle'] != null),
+        assert(map['questDescription'] != null),
+        assert(map['creatorUID'] != null),
 
-        assert(map['category'] != null),
+        // assert(map['category'] != null),
 
-        assert(map['photoUrl'] != null),
-        assert(map['image'] != null),
+        // assert(map['photoUrl'] != null),
+        // assert(map['image'] != null),
 
-        listUid = reference.documentID,
-        listTitle = map['listTitle'],
-        listDescription = map['listDescription'],
+        questUid = reference.documentID,
+        questTitle = map['questTitle'],
+        questDescription = map['questDescription'],
         creatorName = map['creatorName'],
         creatorUID = map['creatorUID'],
 
-        listCategory = map['listCategory'],
-        listTag = map['listTag'],
+        questImageUrl = map['questImageUrl'],
+        questImage = map['questImage'],
 
-        listImageUrl = map['listImageUrl'],
-        listImage = map['listImage'],
-        
-        isPublic = map['listImage'],
-        isPeriod = map['listImage'],
+        questLocation = map['questLocation'],
+        questCategory = map['questCategory'],
+        questTag = map['questTag'],
+
+        isPublic = map['isPublic'],
+        hasPeriod = map['hasPeriod'],
         dateEventStart = map['dateEventStart'],
         dateEventEnd = map['dateEventEnd'],
         dateCreated = map['dateCreated'],
@@ -59,5 +61,5 @@ class Quest {
       : this.fromMap(snapshot.data, reference: snapshot.reference);
 
   @override
-  String toString() => "Quest<$listTitle:$creatorName>";
+  String toString() => "Quest<$questTitle:$creatorName>";
 }
