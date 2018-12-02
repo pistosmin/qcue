@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+
 import 'login.dart';
 import 'home.dart';
 import 'search.dart';
+import 'createQuestList.dart';
+import 'createQuest.dart';
+import 'viewQuestList.dart';
+import 'viewQuest.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,6 +27,10 @@ class MyApp extends StatelessWidget {
         'login':(context) => LoginPage(),
         'home':(context) => HomePage(),
         'search':(context) => HomePage(),
+        '/createQuestList': (context) => CreateQuestListPage(),
+        '/createQuest': (context) => CreateQuestPage(),
+        '/viewQuestList': (context) => ViewQuestList(),
+        '/viewQuest': (context) => ViewQuest(),
       },
     );
   }
