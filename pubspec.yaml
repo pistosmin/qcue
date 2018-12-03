@@ -23,6 +23,7 @@ dependencies:
   uuid: ^1.0.3
   image_picker: ^0.4.10
   carousel_pro: ^0.0.13
+  intl: ^0.15.7
 
 
   # The following adds the Cupertino Icons font to your application.

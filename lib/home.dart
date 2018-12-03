@@ -6,6 +6,8 @@ import 'package:carousel_pro/carousel_pro.dart';
 import 'category.dart';
 import 'add.dart';
 import 'search.dart';
+import 'bottom.dart';
+import 'detail.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -17,20 +19,6 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  Widget gridSection(BuildContext context){
-    return new Expanded(
-    flex: 1,
-    child: new GridView.count(
-        crossAxisCount: 3,
-        childAspectRatio: 1.0,
-        mainAxisSpacing: 4.0,
-        crossAxisSpacing: 4.0,
-        children: _generateGridItems().map((String value) {
-          return _displayGridItem(value, context);
-        }).toList()),
-  );
-  }
-
   final List<Tab> myTabs = <Tab>[
     Tab(text: 'LEFT'),
     Tab(text: 'RIGHT'),
@@ -61,7 +49,30 @@ class HomePageState extends State<HomePage>
 
   Widget _buildBody(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection('ongoing_quests').snapshots(),
+      stream: Firestore.instance
+          .collection('ongoing_quests')
+          .where('isClear', isEqualTo: 'false')
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return LinearProgressIndicator();
+        return Container(
+          child: GridView.count(
+            crossAxisCount: 1,
+            padding: EdgeInsets.all(16.0),
+            childAspectRatio: 7.0 / 3.0,
+            children: _buildGridCards(context, snapshot.data.documents),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDoneBody(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance
+          .collection('ongoing_quests')
+          .where('isClear', isEqualTo: 'true')
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LinearProgressIndicator();
         return Container(
@@ -109,7 +120,72 @@ class HomePageState extends State<HomePage>
                   Text(record.writer,
                       style: TextStyle(
                           fontSize: 10.0, fontWeight: FontWeight.bold)),
-                  Text(record.explanation, style: TextStyle(fontSize: 13.0))
+                  Text(record.explanation, style: TextStyle(fontSize: 13.0)),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Container(
+                          child: Icon(Icons.favorite),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          child: Icon(Icons.file_download),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          child: Icon(Icons.mode_comment),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Container(
+                          child: Text(
+                            record.favo.toString(),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          child: Text(
+                            record.down.toString(),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          child: Text(
+                            record.comment.toString(),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  new FlatButton(
+                    onPressed: () {
+                      print(record.name);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailPage(
+                                name: record.name,
+                              ),
+                        ),
+                      );
+                    },
+                    textColor: Colors.blue,
+                    padding: const EdgeInsets.only(left: 100.0),
+                    child: new Text(
+                      "more",
+                    ),
+                  ),
                 ],
               ),
             )),
@@ -124,6 +200,7 @@ class HomePageState extends State<HomePage>
     return Scaffold(
       appBar: AppBar(
         title: Text("Qcue"),
+        centerTitle: true,
         actions: <Widget>[
           new IconButton(
             icon: new Icon(
@@ -139,10 +216,10 @@ class HomePageState extends State<HomePage>
               );
             },
           ),
-        // backgroundColor: Colors.orange[800],
+          // backgroundColor: Colors.orange[800],
           IconButton(
             icon: new Icon(Icons.search),
-            onPressed: (){
+            onPressed: () {
               Navigator.of(context).push(
                 new MaterialPageRoute(builder: (context) => new SearchPage()),
               );
@@ -203,14 +280,14 @@ class HomePageState extends State<HomePage>
                         ],
                       ),
                       Container(
-                        height: 300.0,
+                        height: 600.0,
                         child: TabBarView(
                           children: <Widget>[
                             Center(
                               child: _buildBody(context),
                             ),
                             Center(
-                              child: Text('완료한 퀘스트 여기'),
+                              child: _buildDoneBody(context),
                             ),
                             Center(
                               child: Text('알림은 여기'),
@@ -221,36 +298,12 @@ class HomePageState extends State<HomePage>
                     ],
                   ),
                 ),
-                ListTile(
-                  title: Text(
-                    '카테고리별 퀘스트 보기',
-                    textAlign: TextAlign.center,
-                  ),
-                  trailing: new Icon(Icons.arrow_forward_ios),
-                ),
-                gridSection(context),
               ],
             );
           }
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: onTabTapped, // new
-        currentIndex: _currentIndex, // new
-        items: [
-          new BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            title: Text('Home'),
-            backgroundColor: Theme.of(context).primaryColor,
-          ),
-          new BottomNavigationBarItem(
-            icon: Icon(Icons.mail),
-            title: Text('Messages'),
-          ),
-          new BottomNavigationBarItem(
-              icon: Icon(Icons.person), title: Text('Profile'))
-        ],
-      ),
+      bottomNavigationBar: BottomNavi(),
     );
   }
 }
@@ -261,6 +314,9 @@ class Record {
   final String writer;
   final String explanation;
   final String uid;
+  final int favo;
+  final int down;
+  final int comment;
   final DocumentReference reference;
 
   Record.fromMap(Map<String, dynamic> map, {this.reference})
@@ -268,153 +324,21 @@ class Record {
         assert(map['writer'] != null),
         assert(map['explanation'] != null),
         assert(map['image'] != null),
+        assert(map['favo'] != null),
+        assert(map['down'] != null),
+        assert(map['comment'] != null),
         uid = reference.documentID,
         name = map['name'],
         writer = map['writer'],
         explanation = map['explanation'],
-        image = map['image'];
+        image = map['image'],
+        favo = map['favo'],
+        down = map['down'],
+        comment = map['comment'];
 
   Record.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data, reference: snapshot.reference);
 
   @override
   String toString() => "Record<$name:$writer>";
-}
-
-List<String> _generateGridItems() {
-  List<String> gridItems = new List<String>();
-  for (int i = 0; i < 6; i++) {
-    if (i == 0) {
-      gridItems.add('study');
-    } else if (i == 1) {
-      gridItems.add('sports');
-    } else if (i == 2) {
-      gridItems.add('diet');
-    } else if (i == 3) {
-      gridItems.add('travel');
-    } else if (i == 4) {
-      gridItems.add('cook');
-    } else if (i == 5) {
-      gridItems.add('all');
-    }
-  }
-  return gridItems;
-}
-
-Widget _generateGridIcons(String value, BuildContext context) {
-  if (value == 'study') {
-    return Container(
-      child: IconButton(
-        icon: Icon(Icons.create),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoryPage(
-                    category: value,
-                  ),
-            ),
-          );
-        },
-      ),
-    );
-  } else if (value == 'sports') {
-    return Container(
-      child: IconButton(
-        icon: Icon(Icons.directions_bike),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoryPage(
-                    category: value,
-                  ),
-            ),
-          );
-        },
-      ),
-    );
-  } else if (value == 'diet') {
-    return Container(
-      child: IconButton(
-        icon: Icon(Icons.directions_run),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoryPage(
-                    category: value,
-                  ),
-            ),
-          );
-        },
-      ),
-    );
-  } else if (value == 'travel') {
-    return Container(
-      child: IconButton(
-        icon: Icon(Icons.map),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoryPage(
-                    category: value,
-                  ),
-            ),
-          );
-        },
-      ),
-    );
-  } else if (value == 'cook') {
-    return Container(
-      child: IconButton(
-        icon: Icon(Icons.fastfood),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoryPage(
-                    category: value,
-                  ),
-            ),
-          );
-        },
-      ),
-    );
-  } else if (value == 'all') {
-    return Container(
-      child: IconButton(
-        icon: Icon(Icons.favorite),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoryPage(
-                    category: value,
-                  ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-Widget _displayGridItem(String value, BuildContext context) {
-  return new Container(
-    padding: new EdgeInsets.all(8.0),
-    color: new Color.fromRGBO(217, 232, 245, 1),
-    child: new Center(
-      child: Container(
-        padding: EdgeInsets.only(top: 20.0),
-        child: Column(
-          children: <Widget>[
-            _generateGridIcons(value, context),
-            new Text(value),
-          ],
-        ),
-      ),
-    ),
-  );
 }
