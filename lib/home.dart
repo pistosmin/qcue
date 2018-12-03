@@ -19,11 +19,13 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-      ScrollController scrollController;
+  ScrollController scrollController;
   final List<Tab> myTabs = <Tab>[
     Tab(text: 'LEFT'),
     Tab(text: 'RIGHT'),
   ];
+  List<int> _myList = new List();
+
 
 
   void onTabTapped(int index) {
@@ -50,11 +52,12 @@ class HomePageState extends State<HomePage>
   int _currentIndex = 0;
   final List<Widget> _children = [];
 
-  Widget _buildBody(BuildContext context) {
+//firebase ongoing_quest에서 user에 저장된 document내용만 들고오기
+   Widget _buildBody(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
           .collection('ongoing_quests')
-          .where('isClear', isEqualTo: 'false')
+          .document()
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LinearProgressIndicator();
@@ -69,6 +72,26 @@ class HomePageState extends State<HomePage>
       },
     );
   }
+
+  // Widget _buildBody(BuildContext context) {
+  //   return StreamBuilder<QuerySnapshot>(
+  //     stream: Firestore.instance
+  //         .collection('ongoing_quests')
+  //         .where('isClear', isEqualTo: 'false')
+  //         .snapshots(),
+  //     builder: (context, snapshot) {
+  //       if (!snapshot.hasData) return LinearProgressIndicator();
+  //       return Container(
+  //         child: GridView.count(
+  //           crossAxisCount: 1,
+  //           padding: EdgeInsets.all(16.0),
+  //           childAspectRatio: 7.0 / 3.0,
+  //           children: _buildGridCards(context, snapshot.data.documents),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget _buildDoneBody(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -257,32 +280,35 @@ class HomePageState extends State<HomePage>
                 new Container(
                   padding: EdgeInsets.all(20.0),
                   child: new Column(
-                  // mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    new Container(
-                      padding: EdgeInsets.only(bottom: 20.0),
-                      width: 100.0,
-                      height: 100.0,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: new DecorationImage(
-                            fit: BoxFit.fill,
-                            image: new NetworkImage(snapshot.data.photoUrl),
-                          )),
-                    ),
-                    new Container(
-                      padding: EdgeInsets.only(top:10.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          new Text('안녕하세요! '+snapshot.data.displayName+'님', style: TextStyle(fontSize: 20.0),),
-                          new Text('현재')
-                        ],
+                    // mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      new Container(
+                        padding: EdgeInsets.only(bottom: 20.0),
+                        width: 100.0,
+                        height: 100.0,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: new DecorationImage(
+                              fit: BoxFit.fill,
+                              image: new NetworkImage(snapshot.data.photoUrl),
+                            )),
                       ),
-                    ),
-                  ],
-                ),
+                      new Container(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            new Text(
+                              '안녕하세요! ' + snapshot.data.displayName + '님',
+                              style: TextStyle(fontSize: 20.0),
+                            ),
+                            new Text('현재')
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Container(
                   height: 500.0,
@@ -291,25 +317,11 @@ class HomePageState extends State<HomePage>
                     itemCount: 3,
                     controller: scrollController,
                     scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, position){
+                    itemBuilder: (context, position) {
                       return GestureDetector(
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Card(
-                            child: Container(
-                              width: 300.0,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-
-
-                                ],
-                              ),
-                            ),
-                          ),
-
-                        ),
+                            padding: const EdgeInsets.all(8.0),
+                            child: _buildBody(context)),
                       );
                     },
                   ),
