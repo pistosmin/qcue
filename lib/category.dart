@@ -96,7 +96,7 @@ class CategoryPageState extends State<CategoryPage> {
         title: Text(widget.category),
       ),
       body: StreamBuilder(
-        stream: Firestore.instance.collection('quest').where('category', isEqualTo: widget.category).snapshots(),
+        stream: Firestore.instance.collection('quest').where('isClear', isEqualTo: 'false').snapshots(),
         builder: (context, snapshot) {
           return Container(
             child: _buildBody(context),

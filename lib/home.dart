@@ -6,8 +6,8 @@ import 'package:carousel_pro/carousel_pro.dart';
 import 'category.dart';
 import 'add.dart';
 import 'search.dart';
-import 'bottom.dart';
 import 'detail.dart';
+import 'createQuestList.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -19,10 +19,12 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
+      ScrollController scrollController;
   final List<Tab> myTabs = <Tab>[
     Tab(text: 'LEFT'),
     Tab(text: 'RIGHT'),
   ];
+
 
   void onTabTapped(int index) {
     setState(() {
@@ -36,6 +38,7 @@ class HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     _tabController = TabController(vsync: this, length: myTabs.length);
+    scrollController = new ScrollController();
   }
 
   @override
@@ -94,6 +97,7 @@ class HomePageState extends State<HomePage>
     }
     return documents.map((ongoing_quests) {
       final record = Record.fromSnapshot(ongoing_quests);
+      // ongoing_quests.documentID
       return Card(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +215,7 @@ class HomePageState extends State<HomePage>
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AddPage(),
+                  builder: (context) => CreateQuestListPage(),
                 ),
               );
             },
@@ -248,62 +252,112 @@ class HomePageState extends State<HomePage>
             );
           } else {
             return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                new SizedBox(
-                    height: 50.0,
-                    width: double.infinity,
-                    child: new Carousel(
-                      images: [
-                        new AssetImage('assets/banner.jpg'),
-                        new NetworkImage(
-                            'https://cdn-images-1.medium.com/max/2000/1*wnIEgP1gNMrK5gZU7QS0-A.jpeg'),
-                      ],
-                    )),
-                DefaultTabController(
-                  length: 3,
-                  initialIndex: 0,
-                  child: Column(
-                    children: <Widget>[
-                      TabBar(
-                        indicatorColor: Theme.of(context).primaryColor,
-                        labelColor: Colors.black,
-                        tabs: <Widget>[
-                          Tab(
-                            text: '진행중인 퀘스트',
-                          ),
-                          Tab(
-                            text: '완료한 퀘스트',
-                          ),
-                          Tab(
-                            text: '알림',
-                          )
+                new Container(
+                  padding: EdgeInsets.all(20.0),
+                  child: new Column(
+                  // mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    new Container(
+                      padding: EdgeInsets.only(bottom: 20.0),
+                      width: 100.0,
+                      height: 100.0,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: new DecorationImage(
+                            fit: BoxFit.fill,
+                            image: new NetworkImage(snapshot.data.photoUrl),
+                          )),
+                    ),
+                    new Container(
+                      padding: EdgeInsets.only(top:10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          new Text('안녕하세요! '+snapshot.data.displayName+'님', style: TextStyle(fontSize: 20.0),),
+                          new Text('현재')
                         ],
                       ),
-                      Container(
-                        height: 600.0,
-                        child: TabBarView(
-                          children: <Widget>[
-                            Center(
-                              child: _buildBody(context),
+                    ),
+                  ],
+                ),
+                ),
+                Container(
+                  height: 500.0,
+                  child: ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: 3,
+                    controller: scrollController,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, position){
+                      return GestureDetector(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Card(
+                            child: Container(
+                              width: 300.0,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+
+
+                                ],
+                              ),
                             ),
-                            Center(
-                              child: _buildDoneBody(context),
-                            ),
-                            Center(
-                              child: Text('알림은 여기'),
-                            ),
-                          ],
+                          ),
+
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ),
+                // DefaultTabController(
+                //   length: 3,
+                //   initialIndex: 0,
+                //   child: Column(
+                //     children: <Widget>[
+                //       TabBar(
+                //         indicatorColor: Theme.of(context).primaryColor,
+                //         labelColor: Colors.black,
+                //         tabs: <Widget>[
+                //           Tab(
+                //             text: '진행중인 퀘스트',
+                //           ),
+                //           Tab(
+                //             text: '완료한 퀘스트',
+                //           ),
+                //           Tab(
+                //             text: '알림',
+                //           )
+                //         ],
+                //       ),
+                //       Container(
+                //         height: 600.0,
+                //         child: TabBarView(
+                //           children: <Widget>[
+                //             Center(
+                //               child: _buildBody(context),
+                //             ),
+                //             Center(
+                //               child: _buildDoneBody(context),
+                //             ),
+                //             Center(
+                //               child: Text('알림은 여기'),
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
               ],
             );
           }
         },
       ),
-      bottomNavigationBar: BottomNavi(),
     );
   }
 }
