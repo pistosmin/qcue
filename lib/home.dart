@@ -199,11 +199,18 @@ class HomePageState extends State<HomePage>
                   ),
                   RaisedButton(
                     onPressed: () {
+                      // print(record.uid);
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => DetailPage(
-                                  documentid: record.reference.documentID,
+                                  // documentid: record.reference.documentID,
+                                  userID: uid,
+                                  documentID: record.uid,
+                                  name: record.name,
+                                  writer: record.writer,
+                                  image: record.image,
+                                  explanation: record.explanation,
                                 ),
                           ));
                     },
@@ -306,22 +313,6 @@ class HomePageState extends State<HomePage>
                     ],
                   ),
                 ),
-                // Container(
-                //   height: 500.0,
-                //   child: ListView.builder(
-                //     physics: NeverScrollableScrollPhysics(),
-                //     itemCount: 3,
-                //     controller: scrollController,
-                //     scrollDirection: Axis.horizontal,
-                //     itemBuilder: (context, position) {
-                //       return GestureDetector(
-                //         child: Padding(
-                //             padding: const EdgeInsets.all(8.0),
-                //             child: _buildBody(context)),
-                //       );
-                //     },
-                //   ),
-                // ),
                 DefaultTabController(
                   length: 3,
                   initialIndex: 0,
