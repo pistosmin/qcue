@@ -26,8 +26,6 @@ class HomePageState extends State<HomePage>
   ];
   List<int> _myList = new List();
 
-
-
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
@@ -53,31 +51,11 @@ class HomePageState extends State<HomePage>
   final List<Widget> _children = [];
 
 //firebase ongoing_quest에서 user에 저장된 document내용만 들고오기
-   Widget _buildBody(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance
-          .collection('ongoing_quests')
-          .document()
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return LinearProgressIndicator();
-        return Container(
-          child: GridView.count(
-            crossAxisCount: 1,
-            padding: EdgeInsets.all(16.0),
-            childAspectRatio: 7.0 / 3.0,
-            children: _buildGridCards(context, snapshot.data.documents),
-          ),
-        );
-      },
-    );
-  }
-
-  // Widget _buildBody(BuildContext context) {
+  //  Widget _buildBody(BuildContext context) {
   //   return StreamBuilder<QuerySnapshot>(
   //     stream: Firestore.instance
   //         .collection('ongoing_quests')
-  //         .where('isClear', isEqualTo: 'false')
+  //         .document()
   //         .snapshots(),
   //     builder: (context, snapshot) {
   //       if (!snapshot.hasData) return LinearProgressIndicator();
@@ -93,7 +71,28 @@ class HomePageState extends State<HomePage>
   //   );
   // }
 
-  Widget _buildDoneBody(BuildContext context) {
+  Widget _buildBody(BuildContext context, String uid) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance
+          .collection('ongoing_quests')
+          .where('participant',
+              arrayContains: uid) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return LinearProgressIndicator();
+        return Container(
+          child: GridView.count(
+            crossAxisCount: 1,
+            padding: EdgeInsets.all(16.0),
+            childAspectRatio: 15.0 / 11.0,
+            children: _buildGridCards(context, snapshot.data.documents, uid),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDoneBody(BuildContext context, String uid) {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
           .collection('ongoing_quests')
@@ -105,8 +104,8 @@ class HomePageState extends State<HomePage>
           child: GridView.count(
             crossAxisCount: 1,
             padding: EdgeInsets.all(16.0),
-            childAspectRatio: 7.0 / 3.0,
-            children: _buildGridCards(context, snapshot.data.documents),
+            childAspectRatio: 15.0 / 11.0,
+            children: _buildGridCards(context, snapshot.data.documents, uid),
           ),
         );
       },
@@ -114,108 +113,104 @@ class HomePageState extends State<HomePage>
   }
 
   List<Card> _buildGridCards(
-      BuildContext context, List<DocumentSnapshot> documents) {
+      BuildContext context, List<DocumentSnapshot> documents, String uid) {
     if (documents == null || documents.isEmpty) {
       return const [];
     }
     return documents.map((ongoing_quests) {
+      // print('document :'+ongoing_quests.data.toString());
       final record = Record.fromSnapshot(ongoing_quests);
+      // print(record.participant.contains('JGua38JkfYTbF7cFK6Q7cvXyIMw2'));
       // ongoing_quests.documentID
       return Card(
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            AspectRatio(
-              aspectRatio: 10 / 9,
-              child: new Image.network(
-                record.image,
-                height: 100.0,
-                width: 100.0,
-                fit: BoxFit.fill,
+            // AspectRatio(
+            //   aspectRatio: 15 / 5,
+            //   child: PhotoHero(
+            //     photo: record.image,
+            //     width: double.infinity,
+            //     // height: 130.0,
+            //     onTap: () {
+            //       Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //           builder: (context) => DetailPage(
+            //                 documentid: record.reference.documentID,
+            //               ),
+            //         ),
+            //       );
+            //     },
+            //   ),
+            // ),
+            Container(
+              padding: EdgeInsets.all(
+                8.0,
               ),
-            ),
-            Expanded(
-                child: Padding(
-              padding: EdgeInsets.only(left: 10.0, top: 10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(record.name,
-                      style: TextStyle(
-                          fontSize: 13.0, fontWeight: FontWeight.bold)),
-                  Text(record.writer,
-                      style: TextStyle(
-                          fontSize: 10.0, fontWeight: FontWeight.bold)),
-                  Text(record.explanation, style: TextStyle(fontSize: 13.0)),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Container(
-                          child: Icon(Icons.favorite),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          child: Icon(Icons.file_download),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          child: Icon(Icons.mode_comment),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    record.name,
+                    style:
+                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                   ),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Container(
-                          child: Text(
-                            record.favo.toString(),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          child: Text(
-                            record.down.toString(),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          child: Text(
-                            record.comment.toString(),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    record.writer,
+                    style: TextStyle(fontSize: 15.0, color: Colors.grey[800]),
+                  )
+                ],
+              ),
+            ),
+            // PhotoHero(
+            //     photo: record.image,
+            //     width: double.infinity,
+            //     height: 130.0,
+            //     onTap: () {
+            //       Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //           builder: (context) => DetailPage(
+            //                 documentid: record.reference.documentID,
+            //                 image: record.image,
+            //               ),
+            //         ),
+            //       );
+            //     },
+            //   ),
+            Image.network(
+              record.image,
+              width: double.infinity,
+              height: 130.0,
+            ),
+            Container(
+              padding: EdgeInsets.all(
+                8.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    record.explanation,
+                    style: TextStyle(fontSize: 15.0, color: Colors.grey[800]),
                   ),
-                  new FlatButton(
+                  RaisedButton(
                     onPressed: () {
-                      print(record.name);
                       Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetailPage(
-                                name: record.name,
-                              ),
-                        ),
-                      );
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailPage(
+                                  documentid: record.reference.documentID,
+                                ),
+                          ));
                     },
-                    textColor: Colors.blue,
-                    padding: const EdgeInsets.only(left: 100.0),
-                    child: new Text(
-                      "more",
-                    ),
+                    child: new Text('more'),
                   ),
                 ],
               ),
-            )),
+            ),
           ],
         ),
       );
@@ -303,68 +298,68 @@ class HomePageState extends State<HomePage>
                               '안녕하세요! ' + snapshot.data.displayName + '님',
                               style: TextStyle(fontSize: 20.0),
                             ),
-                            new Text('현재')
+                            new Text('계획없는 목표는 한낱 꿈에 불과하다.')
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  height: 500.0,
-                  child: ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: 3,
-                    controller: scrollController,
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, position) {
-                      return GestureDetector(
-                        child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: _buildBody(context)),
-                      );
-                    },
-                  ),
-                ),
-                // DefaultTabController(
-                //   length: 3,
-                //   initialIndex: 0,
-                //   child: Column(
-                //     children: <Widget>[
-                //       TabBar(
-                //         indicatorColor: Theme.of(context).primaryColor,
-                //         labelColor: Colors.black,
-                //         tabs: <Widget>[
-                //           Tab(
-                //             text: '진행중인 퀘스트',
-                //           ),
-                //           Tab(
-                //             text: '완료한 퀘스트',
-                //           ),
-                //           Tab(
-                //             text: '알림',
-                //           )
-                //         ],
-                //       ),
-                //       Container(
-                //         height: 600.0,
-                //         child: TabBarView(
-                //           children: <Widget>[
-                //             Center(
-                //               child: _buildBody(context),
-                //             ),
-                //             Center(
-                //               child: _buildDoneBody(context),
-                //             ),
-                //             Center(
-                //               child: Text('알림은 여기'),
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //     ],
+                // Container(
+                //   height: 500.0,
+                //   child: ListView.builder(
+                //     physics: NeverScrollableScrollPhysics(),
+                //     itemCount: 3,
+                //     controller: scrollController,
+                //     scrollDirection: Axis.horizontal,
+                //     itemBuilder: (context, position) {
+                //       return GestureDetector(
+                //         child: Padding(
+                //             padding: const EdgeInsets.all(8.0),
+                //             child: _buildBody(context)),
+                //       );
+                //     },
                 //   ),
                 // ),
+                DefaultTabController(
+                  length: 3,
+                  initialIndex: 0,
+                  child: Column(
+                    children: <Widget>[
+                      TabBar(
+                        indicatorColor: Theme.of(context).primaryColor,
+                        labelColor: Colors.black,
+                        tabs: <Widget>[
+                          Tab(
+                            text: '진행중인 퀘스트',
+                          ),
+                          Tab(
+                            text: '완료한 퀘스트',
+                          ),
+                          Tab(
+                            text: '알림',
+                          )
+                        ],
+                      ),
+                      Container(
+                        height: 500.0,
+                        child: TabBarView(
+                          children: <Widget>[
+                            Center(
+                              child: _buildBody(context, snapshot.data.uid),
+                            ),
+                            Center(
+                              child: _buildDoneBody(context, snapshot.data.uid),
+                            ),
+                            Center(
+                              child: Text('알림은 여기'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             );
           }
@@ -380,6 +375,7 @@ class Record {
   final String writer;
   final String explanation;
   final String uid;
+  List<dynamic> participant;
   final int favo;
   final int down;
   final int comment;
@@ -393,6 +389,7 @@ class Record {
         assert(map['favo'] != null),
         assert(map['down'] != null),
         assert(map['comment'] != null),
+        assert(map['participant'] != null),
         uid = reference.documentID,
         name = map['name'],
         writer = map['writer'],
@@ -400,11 +397,40 @@ class Record {
         image = map['image'],
         favo = map['favo'],
         down = map['down'],
-        comment = map['comment'];
+        comment = map['comment'],
+        participant = map['participant'];
 
   Record.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data, reference: snapshot.reference);
 
   @override
   String toString() => "Record<$name:$writer>";
+}
+
+class PhotoHero extends StatelessWidget {
+  const PhotoHero({Key key, this.photo, this.onTap, this.width, this.height})
+      : super(key: key);
+  final String photo;
+  final VoidCallback onTap;
+  final double width;
+  final double height;
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Hero(
+        tag: photo,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            child: Image.network(
+              photo,
+              fit: BoxFit.fill,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
