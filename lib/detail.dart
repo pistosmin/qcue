@@ -110,7 +110,7 @@ class DetailPageState extends State<DetailPage> {
           child: GridView.count(
             crossAxisCount: 1,
             padding: EdgeInsets.all(16.0),
-            childAspectRatio: 15.0 / 11.0,
+            childAspectRatio: 40.0 / 11.0,
             children: _buildGridCards(context, snapshot.data.documents),
           ),
         );
@@ -125,8 +125,28 @@ class DetailPageState extends State<DetailPage> {
     }
     return documents.map((ongoing_quests) {
       final quest = Quest.fromSnapshot(ongoing_quests);
+      bool isClearvalue;
+      if (quest.isClear == 'true')
+        isClearvalue = true;
+      else
+        isClearvalue = false;
       return Card(
-        child: Text(quest.name),
+        // child: Text(quest.name+' '+quest.isClear),
+        child: CheckboxListTile(
+          value: isClearvalue,
+          onChanged: (bool value) {
+            setState(() {
+              isClearvalue = true;
+              Firestore.instance
+                  .collection('ongoing_quests')
+                  .document(widget.documentID)
+                  .collection('quest')
+                  .document(ongoing_quests.documentID)
+                  .updateData({'isClear': 'true'});
+            });
+          },
+          title: Text(quest.name),
+        ),
       );
     }).toList();
   }
@@ -216,9 +236,6 @@ class DetailPageState extends State<DetailPage> {
                       ),
                     ),
                   ],
-                ),
-                Container(
-                  child: Text('data'),
                 ),
                 _questList(context),
               ],
