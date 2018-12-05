@@ -184,6 +184,7 @@ class HomePageState extends State<HomePage>
               record.image,
               width: double.infinity,
               height: 130.0,
+              fit: BoxFit.fill,
             ),
             Container(
               padding: EdgeInsets.all(
