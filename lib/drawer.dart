@@ -1,107 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class AppDrawer extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: FirebaseAuth.instance.currentUser().asStream(),
-        builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
-          return Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: <Widget>[
-                DrawerHeader(
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                        // padding: EdgeInsets.only(bottom: 20.0),
-                        width: 50.0,
-                        height: 50.0,
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                              fit: BoxFit.fill,
-                              image: NetworkImage(snapshot.data.photoUrl),
-                            )),
-                      ),
-                      SizedBox(width: 15.0),
-                      Container(
-                        // padding: EdgeInsets.only(top: 10.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              '안녕하세요! \n' + snapshot.data.displayName + '님',
-                              // snapshot.data.displayName,
-                              style: TextStyle(fontSize: 15.0),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                  ),
-                ),
-                ListTile(
-                  leading: Icon(
-                    Icons.person,
-                    semanticLabel: 'My Page',
-                  ),
-                  title: Text(
-                    'My page',
-                    style:  TextStyle(fontSize: 18.0, color: Colors.grey),
-                  ),
-                  onTap: () {
-                    // Navigator.pop(context);
-                    Navigator.pushNamed(context, '/mypage');
-                  },
-                ),
-                Divider(),
-                ListTile(
-                  leading: Icon(
-                    Icons.priority_high,
-                    semanticLabel: 'My Quests',
-                  ),
-                  title: Text(
-                    'My Quests',
-                    style:  TextStyle(fontSize: 18.0, color: Colors.grey),
-                  ),
-                  onTap: () {
-                    // Navigator.pop(context);
-                    Navigator.pushNamed(context, '/viewQuestList');
-                  },
-                ),
-                Divider(),
-                SizedBox(height: 370.0),
-                Divider(),
-                ListTile(
-                  leading: Icon(
-                    Icons.exit_to_app,
-                    semanticLabel: 'Sign Out',
-                    // color: color,
-                  ),
-                  title: Text(
-                    'Sign Out',
-                    style:  TextStyle(fontSize: 18.0, color: Colors.grey),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, '/login');
-                    FirebaseAuth.instance.signOut();
-                  },
-                ),
-              ],
-            ),
-          );
-        });
-  }
-}
-
 class CustomDrawer extends StatefulWidget {
   @override
   createState() =>  CustomDrawerState();
@@ -173,7 +72,7 @@ class CustomDrawerState extends State<CustomDrawer> {
               Navigator.pushNamed(context, "/mypage");
             },
           ),
-           ListTile(
+          ListTile(
             title:  Container(
               padding: const EdgeInsets.only(bottom: 15.0),
               margin: const EdgeInsets.only(top: 10.0),
@@ -218,7 +117,7 @@ class CustomDrawerState extends State<CustomDrawer> {
               Navigator.pushNamed(context, "/home");
             },
           ),
-           ListTile(
+          ListTile(
             title:  Container(
               padding: const EdgeInsets.only(bottom: 15.0),
               margin: const EdgeInsets.only(top: 15.0),
@@ -267,7 +166,7 @@ class CustomDrawerState extends State<CustomDrawer> {
               Navigator.pushNamed(context, "/viewQuest");
             },
           ),
-           ListTile(
+          ListTile(
             title:  Container(
               padding: const EdgeInsets.only(bottom: 15.0),
               margin: const EdgeInsets.only(top: 15.0),
@@ -315,7 +214,7 @@ class CustomDrawerState extends State<CustomDrawer> {
               Navigator.pushNamed(context, "/viewQuestList");
             },
           ),
-           ListTile(
+          ListTile(
             title:  Container(
               padding: const EdgeInsets.only(bottom: 15.0),
               margin: const EdgeInsets.only(top: 15.0),
@@ -360,7 +259,7 @@ class CustomDrawerState extends State<CustomDrawer> {
               Navigator.pushNamed(context, "/mypage");
             },
           ),
-           ListTile(
+          ListTile(
             title:  Container(
               padding: const EdgeInsets.only(bottom: 15.0),
               margin: const EdgeInsets.only(top: 15.0),

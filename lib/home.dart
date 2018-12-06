@@ -268,7 +268,7 @@ class HomePageState extends State<HomePage>
         appBar: AppBar(
           title: Text("QCUE", style: TextStyle(color: Colors.orange[800]),),
           iconTheme: new IconThemeData(color: Colors.orange[800]),
-          elevation: 0,
+          elevation: 0.3,
           centerTitle: true,
           actions: <Widget>[
             IconButton(

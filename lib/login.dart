@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    timeDilation = 1.2;
+    timeDilation = 1.4;
     return Scaffold(
       body: Center(
           child: Padding(
@@ -60,7 +60,46 @@ class _LoginPageState extends State<LoginPage> {
               //   alignment: Alignment.center,
               // ),
             ),
-            SizedBox(height: 220.0),
+            SizedBox(height: 40.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  "퀘",
+                  style: TextStyle(
+                    fontSize: 25.0,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                Text(
+                  "스트 ",
+                  style: TextStyle(
+                    fontSize: 20.0,
+                  ),
+                ),
+                Text(
+                  "큐",
+                  style: TextStyle(
+                    fontSize: 25.0,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                Text(
+                  "레이션 ",
+                  style: TextStyle(
+                    fontSize: 20.0,
+                  ),
+                ),
+                Text(
+                  "서비스",
+                  style: TextStyle(
+                    fontSize: 20.0,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 180.0),
             RaisedButton(
                 splashColor: Theme.of(context).primaryColor,
                 shape: RoundedRectangleBorder(
