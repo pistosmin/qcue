@@ -19,7 +19,7 @@ class AddPageState extends State<AddPage> {
   File _image;
   String name;
   String url =
-      'https://firebasestorage.googleapis.com/v0/b/realfinal-a0b57.appspot.com/o/default.png?alt=media&token=b1d44724-0984-4232-969c-29564b4d6119';
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjhJ_fE8brBZTj3ZXyqbs00etqFS7shBubvpVai0p0NkY7fHaZ-g';
   String explanation;
   String category;
   static bool uploadFlag = true;
@@ -49,7 +49,7 @@ class AddPageState extends State<AddPage> {
               Navigator.pop(context);
             },
           ),
-          title: Text('Add'),
+          title: Text('Add Quest List'),
         ),
         body: StreamBuilder(
             stream: FirebaseAuth.instance.currentUser().asStream(),
@@ -134,8 +134,8 @@ class AddPageState extends State<AddPage> {
                                   category = _categoryController.text;
                                   final String uuid = Uuid().v1();
                                   Firestore.instance
-                                      .collection('quest')
-                                      .document(name)
+                                      .collection('ongoing_quests')
+                                      .document()
                                       .setData({
                                     'name': name,
                                     'image': url,
@@ -144,6 +144,10 @@ class AddPageState extends State<AddPage> {
                                     'writer': snapshot.data.uid,
                                     'explanation': explanation,
                                     'category': category,
+                                    'isClear': 'false',
+                                    'comment': '0',
+                                    'down': '0',
+                                    'favo': '0',
                                   });
                                   print('Upload Complete');
                                   Navigator.pop(context);

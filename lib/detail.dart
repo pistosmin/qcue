@@ -136,13 +136,23 @@ class DetailPageState extends State<DetailPage> {
           value: isClearvalue,
           onChanged: (bool value) {
             setState(() {
-              isClearvalue = true;
-              Firestore.instance
-                  .collection('ongoing_quests')
-                  .document(widget.documentID)
-                  .collection('quest')
-                  .document(ongoing_quests.documentID)
-                  .updateData({'isClear': 'true'});
+              if(!isClearvalue){
+                isClearvalue = true;
+                Firestore.instance
+                    .collection('ongoing_quests')
+                    .document(widget.documentID)
+                    .collection('quest')
+                    .document(ongoing_quests.documentID)
+                    .updateData({'isClear': 'true'});
+              }else{
+                isClearvalue = false;
+                Firestore.instance
+                    .collection('ongoing_quests')
+                    .document(widget.documentID)
+                    .collection('quest')
+                    .document(ongoing_quests.documentID)
+                    .updateData({'isClear': 'false'});
+              }
             });
           },
           title: Text(quest.name),
@@ -198,11 +208,26 @@ class DetailPageState extends State<DetailPage> {
               children: <Widget>[
                 Stack(
                   children: <Widget>[
-                    Image.network(
-                      widget.image,
-                      width: double.infinity,
-                      color: Color.fromRGBO(0, 0, 0, 0.7),
-                      colorBlendMode: BlendMode.darken,
+                    // Image.network(
+                    //   widget.image,
+                    //   width: double.infinity,
+                    //   color: Color.fromRGBO(0, 0, 0, 0.7),
+                    //   colorBlendMode: BlendMode.darken,
+                    // ),
+                    Hero(
+                      tag: '${widget.documentID}',
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          child: 
+                          Image.network(
+                            widget.image,
+                            width: double.infinity,
+                            height: 130.0,
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
                     ),
                     Container(
                       padding: EdgeInsets.only(top: 20.0, left: 15.0),

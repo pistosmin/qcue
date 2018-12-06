@@ -8,6 +8,7 @@ import 'add.dart';
 import 'search.dart';
 import 'detail.dart';
 import 'createQuestList.dart';
+import 'dropMenu.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -49,28 +50,6 @@ class HomePageState extends State<HomePage>
 
   int _currentIndex = 0;
   final List<Widget> _children = [];
-
-//firebase ongoing_quest에서 user에 저장된 document내용만 들고오기
-  //  Widget _buildBody(BuildContext context) {
-  //   return StreamBuilder<QuerySnapshot>(
-  //     stream: Firestore.instance
-  //         .collection('ongoing_quests')
-  //         .document()
-  //         .snapshots(),
-  //     builder: (context, snapshot) {
-  //       if (!snapshot.hasData) return LinearProgressIndicator();
-  //       return Container(
-  //         child: GridView.count(
-  //           crossAxisCount: 1,
-  //           padding: EdgeInsets.all(16.0),
-  //           childAspectRatio: 7.0 / 3.0,
-  //           children: _buildGridCards(context, snapshot.data.documents),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
   Widget _buildBody(BuildContext context, String uid) {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
@@ -127,24 +106,6 @@ class HomePageState extends State<HomePage>
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            // AspectRatio(
-            //   aspectRatio: 15 / 5,
-            //   child: PhotoHero(
-            //     photo: record.image,
-            //     width: double.infinity,
-            //     // height: 130.0,
-            //     onTap: () {
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //           builder: (context) => DetailPage(
-            //                 documentid: record.reference.documentID,
-            //               ),
-            //         ),
-            //       );
-            //     },
-            //   ),
-            // ),
             Container(
               padding: EdgeInsets.all(
                 8.0,
@@ -164,27 +125,26 @@ class HomePageState extends State<HomePage>
                 ],
               ),
             ),
-            // PhotoHero(
-            //     photo: record.image,
-            //     width: double.infinity,
-            //     height: 130.0,
-            //     onTap: () {
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //           builder: (context) => DetailPage(
-            //                 documentid: record.reference.documentID,
-            //                 image: record.image,
-            //               ),
-            //         ),
-            //       );
-            //     },
-            //   ),
-            Image.network(
-              record.image,
-              width: double.infinity,
-              height: 130.0,
-              fit: BoxFit.fill,
+            // Image.network(
+            //   record.image,
+            //   width: double.infinity,
+            //   height: 130.0,
+            //   fit: BoxFit.fill,
+            // ),
+            Hero(
+              tag: '${ongoing_quests.documentID}',
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  child: 
+                  Image.network(
+                    record.image,
+                    width: double.infinity,
+                    height: 130.0,
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ),
             ),
             Container(
               padding: EdgeInsets.all(
@@ -258,6 +218,7 @@ class HomePageState extends State<HomePage>
         ],
         backgroundColor: Colors.orange[800],
       ),
+      drawer: DropMenu(),
       body: StreamBuilder(
         stream: FirebaseAuth.instance.currentUser().asStream(),
         builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
