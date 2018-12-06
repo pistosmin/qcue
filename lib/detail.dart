@@ -5,7 +5,19 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+enum DialogDemoAction {
+  cancel,
+  search,
+  disagree,
+  agree,
+}
+
+const String _alertWithoutTitleText = 'Simple Alert Dialog';
+
 class DetailPage extends StatefulWidget {
+  
   String userID;
   String documentID;
   String name, image, writer, explanation;
@@ -23,6 +35,8 @@ class DetailPage extends StatefulWidget {
 }
 
 class DetailPageState extends State<DetailPage> {
+  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
   Widget _buildBody(BuildContext context, String uid) {
     // print(widget.documentID);
     print(widget.image);
@@ -177,6 +191,20 @@ class DetailPageState extends State<DetailPage> {
       ),
     );
   }
+  
+  void showDemoDialog<T>({ BuildContext context, Widget child }) {
+    showDialog<T>(
+      context: context,
+      builder: (BuildContext context) => child,
+    )
+    .then<void>((T value) { // The value passed to Navigator.pop() or null.
+      if (value != null) {
+        _scaffoldKey.currentState.showSnackBar(new SnackBar(
+          content: new Text('You selected: $value')
+        ));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,6 +212,61 @@ class DetailPageState extends State<DetailPage> {
       appBar: AppBar(
         title: Text('Detail'),
       ),
+      
+      floatingActionButton: FloatingActionButton.extended(
+        tooltip: 'ADD', // Tests depend on this label to exit the demo.
+        onPressed: () {
+          showDialog<DialogDemoAction>(
+            context: context,
+            child: new AlertDialog(
+              content:
+              Column(
+                children: <Widget>[
+                  SizedBox(height: 10.0,),
+                  new Text(
+                    'Quset Add',
+                  ),
+                  SizedBox(height: 10.0,),
+                  TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      filled: true,
+                      labelText: 'Quest Name',
+                    ),
+                  ),
+                  SizedBox(height: 10.0,),
+                  TextField(
+                    controller: _descriptionController,
+                    decoration: InputDecoration(
+                      filled: true,
+                      labelText: 'Quest Description',
+                    ),
+                  ),
+
+                ],
+              ),
+              actions: <Widget>[
+                new FlatButton(
+                  child: const Text('ADD'),
+                  onPressed: () {                    
+                    Firestore.instance.collection('ongoing_quests').document(widget.documentID).collection('quest').document().setData({'name':'${_nameController.text}','isClear':'false','Time':DateTime.now()});
+                    Navigator.pop(context, DialogDemoAction.search); 
+                  }
+                ),
+                new FlatButton(
+                  child: const Text('CANCEL'),
+                  onPressed: () { Navigator.pop(context, DialogDemoAction.cancel); }
+                ),
+              ]
+            )
+          );
+          _nameController.clear();
+          _descriptionController.clear();
+        },
+        label: const Text('ADD'),
+        icon: const Icon(Icons.add),
+      ),
+      
       body: StreamBuilder(
         stream: FirebaseAuth.instance.currentUser().asStream(),
         builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
