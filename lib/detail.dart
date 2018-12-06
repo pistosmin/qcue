@@ -183,6 +183,18 @@ class DetailPageState extends State<DetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Detail'),
+        actions: <Widget>[
+          new IconButton(
+            icon: new Icon(
+              Icons.delete_forever,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Firestore.instance.collection('ongoing_quests').document('${widget.documentID}').delete().then((_){print('Document Deleted');}).catchError((e){print(e);});
+                    Navigator.pop(context);
+            },
+          ),
+        ],
       ),
       body: StreamBuilder(
         stream: FirebaseAuth.instance.currentUser().asStream(),
