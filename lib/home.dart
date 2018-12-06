@@ -218,7 +218,7 @@ class HomePageState extends State<HomePage>
         ],
         backgroundColor: Colors.orange[800],
       ),
-      drawer: DropMenu(),
+      drawer: CustomDrawer(),
       body: StreamBuilder(
         stream: FirebaseAuth.instance.currentUser().asStream(),
         builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {

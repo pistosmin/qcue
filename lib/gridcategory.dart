@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'category.dart';
 
-class GridCateogory extends StatefulWidget{
+class GridCateogory extends StatefulWidget {
   @override
   GridCateogoryState createState() {
     return GridCateogoryState();
   }
 }
-class GridCateogoryState extends State<GridCateogory>{
-   Widget gridSection(BuildContext context) {
+
+class GridCateogoryState extends State<GridCateogory> {
+  Widget gridSection(BuildContext context) {
     return new Expanded(
       flex: 1,
       child: new GridView.count(
@@ -21,16 +22,29 @@ class GridCateogoryState extends State<GridCateogory>{
           }).toList()),
     );
   }
+
   @override
-  Widget build(BuildContext context){
-    return Center(
-      child: gridSection(context),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Category'),
+      ),
+      body: Center(
+        child: OrientationBuilder(builder: (context, orientation) {
+          return GridView.count(
+              crossAxisCount: orientation == Orientation.portrait ? 2 : 3,
+              padding: EdgeInsets.all(16.0),
+              childAspectRatio: 8.0 / 9.0,
+              children: _generateGridItems().map((String value) {
+                return _displayGridItem(value, context);
+              }).toList());
+        }),
+      ),
     );
   }
 }
 
-
-  Widget _generateGridIcons(String value, BuildContext context) {
+Widget _generateGridIcons(String value, BuildContext context) {
   if (value == 'study') {
     return Container(
       child: IconButton(
@@ -129,7 +143,6 @@ class GridCateogoryState extends State<GridCateogory>{
     );
   }
 }
-  
 
 List<String> _generateGridItems() {
   List<String> gridItems = new List<String>();
@@ -151,10 +164,16 @@ List<String> _generateGridItems() {
   return gridItems;
 }
 
-
-
 Widget _displayGridItem(String value, BuildContext context) {
   return new Container(
+    // decoration: BoxDecoration(
+    //   border: Border(
+    //     top: BorderSide(width: 1.0, color: Colors.black),
+    //     left: BorderSide(width: 1.0, color: Colors.black),
+    //     right: BorderSide(width: 1.0, color: Colors.black),
+    //     bottom: BorderSide(width: 1.0, color: Colors.black),
+    //   ),
+    // ),
     padding: new EdgeInsets.all(8.0),
     color: new Color.fromRGBO(217, 232, 245, 1),
     child: new Center(
