@@ -40,16 +40,8 @@ class AddPageState extends State<AddPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(
-              Icons.keyboard_backspace,
-              semanticLabel: 'back',
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
           title: Text('Add'),
+          iconTheme: new IconThemeData(color: Colors.white),
         ),
         body: StreamBuilder(
             stream: FirebaseAuth.instance.currentUser().asStream(),
@@ -187,27 +179,4 @@ class AddPageState extends State<AddPage> {
               }
             }));
   }
-}
-
-class Record {
-  final String name;
-  final String photoUrl;
-  final int price;
-  final String uid;
-  final DocumentReference reference;
-
-  Record.fromMap(Map<String, dynamic> map, {this.reference})
-      : assert(map['name'] != null),
-        assert(map['price'] != null),
-        assert(map['photoUrl'] != null),
-        uid = reference.documentID,
-        name = map['name'],
-        price = map['price'],
-        photoUrl = map['photoUrl'];
-
-  Record.fromSnapshot(DocumentSnapshot snapshot)
-      : this.fromMap(snapshot.data, reference: snapshot.reference);
-
-  @override
-  String toString() => "Record<$name:$price>";
 }

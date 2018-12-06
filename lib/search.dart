@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'record.dart';
 
 class SearchPage extends StatefulWidget{
   String query='';
@@ -79,7 +80,8 @@ class SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Search'),
-        backgroundColor: Colors.orange[800],
+        iconTheme: new IconThemeData(color: Colors.white),
+        // backgroundColor: Colors.orange[800],
       ),
       body: Column(
         children: <Widget>[
@@ -112,30 +114,4 @@ class SearchPageState extends State<SearchPage> {
       )
     );
   }
-}
-
-class Record {
-  final String name;
-  final String image;
-  final String writer;
-  final String explanation;
-  final String uid;
-  final DocumentReference reference;
-
-  Record.fromMap(Map<String, dynamic> map, {this.reference})
-      : assert(map['name'] != null),
-        assert(map['writer'] != null),
-        assert(map['explanation'] != null),
-        assert(map['image'] != null),
-        uid = reference.documentID,
-        name = map['name'],
-        writer = map['writer'],
-        explanation = map['explanation'],
-        image = map['image'];
-
-  Record.fromSnapshot(DocumentSnapshot snapshot)
-      : this.fromMap(snapshot.data, reference: snapshot.reference);
-
-  @override
-  String toString() => "Record<$name:$writer>";
 }

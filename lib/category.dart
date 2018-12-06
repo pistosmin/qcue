@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'record.dart';
 
 class CategoryPage extends StatefulWidget {
   String category;
@@ -105,33 +106,4 @@ class CategoryPageState extends State<CategoryPage> {
       ),
     );
   }
-}
-
-class Record {
-  final String name;
-  final String image;
-  final String category;
-  final String writer;
-  final String explanation;
-  final String uid;
-  final DocumentReference reference;
-
-  Record.fromMap(Map<String, dynamic> map, {this.reference})
-      : assert(map['name'] != null),
-        assert(map['category'] != null),
-        assert(map['explanation'] != null),
-        assert(map['image'] != null),
-        assert(map['writer'] != null),
-        uid = reference.documentID,
-        name = map['name'],
-        category = map['category'],
-        image = map['image'],
-        explanation = map['explanation'],
-        writer = map['writer'];
-
-  Record.fromSnapshot(DocumentSnapshot snapshot)
-      : this.fromMap(snapshot.data, reference: snapshot.reference);
-
-  @override
-  String toString() => "Record<$name:$category>";
 }

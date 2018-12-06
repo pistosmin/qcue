@@ -80,8 +80,8 @@ class CreateQuesState extends State<CreateQuestPage> {
     );
   }
 
-  Widget _addQuestList() {
-    //add Quest List
+  Widget _addQuest() {
+    //add Quest
     // return StreamBuilder(
     //   stream: FirebaseAuth.instance.currentUser().asStream(),
     //   builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
@@ -349,11 +349,12 @@ class CreateQuesState extends State<CreateQuestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(_hasTitle ? _questTitle : '새로운 리스트'),
+          title: Text(_hasTitle ? _questTitle : '새로운 퀘스트'),
+          iconTheme: new IconThemeData(color: Colors.white),
           actions: <Widget>[],
         ),
         body: SingleChildScrollView(
-            child: _addQuestList()
+            child: _addQuest()
           )
         );
   }

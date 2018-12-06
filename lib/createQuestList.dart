@@ -113,7 +113,7 @@ class CreateQuestListState extends State<CreateQuestListPage> {
                       autofocus: true,
                       decoration: InputDecoration(
                         filled: true,
-                        labelText: 'New List Title',
+                        hintText: 'New List Title',
                       ),
                       onChanged: (String value) {
                         setState(() {
@@ -136,7 +136,7 @@ class CreateQuestListState extends State<CreateQuestListPage> {
                       controller: _listDesctiptionController,
                       decoration: InputDecoration(
                         filled: true,
-                        labelText: 'Enter The Description',
+                        hintText: 'Enter The Description',
                       ),
                       onChanged: (String value) {
                         setState(() {
@@ -161,7 +161,7 @@ class CreateQuestListState extends State<CreateQuestListPage> {
                       autofocus: true,
                       decoration: InputDecoration(
                         filled: true,
-                        labelText: 'Add Tag',
+                        hintText: 'Add Tag',
                       ),
                     ),
                   ),
@@ -348,12 +348,18 @@ class CreateQuestListState extends State<CreateQuestListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(_hasTitle ? _listTitle : '새로운 리스트'),
+          title: Text(_hasTitle ? _listTitle : '새로운 리스트', style: TextStyle(color: Colors.orange[800]),),
+          iconTheme: new IconThemeData(color: Colors.orange[800]),
+          elevation: 0,
           actions: <Widget>[],
+          // backgroundColor: Colors.white,
+          backgroundColor: Colors.orange[50],
         ),
         body: SingleChildScrollView(
             child: _addQuestList()
-          )
+          ),
+          backgroundColor: Colors.orange[50],
+          // backgroundColor: Colors.white,
         );
   }
 }
