@@ -7,6 +7,9 @@ class CustomDrawer extends StatefulWidget {
 }
 
 class CustomDrawerState extends State<CustomDrawer> {
+  String defaultImageUrl =
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjhJ_fE8brBZTj3ZXyqbs00etqFS7shBubvpVai0p0NkY7fHaZ-g';
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -34,8 +37,10 @@ class CustomDrawerState extends State<CustomDrawer> {
                             width: 60.0, height: 60.0,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              image: DecorationImage(
-                                  image: NetworkImage(snapshot.data.photoUrl),
+                              image:  DecorationImage(
+                                  image: snapshot.data.photoUrl == null 
+                                  ? Image.network(defaultImageUrl) 
+                                  : NetworkImage(snapshot.data.photoUrl),
                                   fit: BoxFit.cover),
                             ),
                             margin:
@@ -137,14 +142,15 @@ class CustomDrawerState extends State<CustomDrawer> {
                             Container(
                                 margin: const EdgeInsets.only(right: 15.0),
                                 child: Icon(
-                                  Icons.priority_high,
+                                  // Icons.priority_high,
+                                  Icons.add,
                                   size: 25.0,
                                   color: const Color.fromRGBO(0, 0, 0, 0.3),
                                   // color: Theme.of(context).primaryColor,
                                   // color: Colors.orange[600],
                                 )),
                             Text(
-                              '퀘스트',
+                              '퀘스트 만들기',
                               style: TextStyle(
                                 fontSize: 20.0, fontFamily: 'NanumSquare',
                                 //  color: Theme.of(context).primaryColor,
@@ -153,7 +159,7 @@ class CustomDrawerState extends State<CustomDrawer> {
                           ],
                         ),
                         Text(
-                          '8',
+                          '',
                           style: TextStyle(
                             fontSize: 16.0,
                             // color:  Color.fromRGBO(0, 0, 0, 0.6)
@@ -165,58 +171,59 @@ class CustomDrawerState extends State<CustomDrawer> {
                     ),
                   ),
                   onTap: () {
-                    Navigator.pushNamed(context, "/viewQuest");
+                    // Navigator.pushNamed(context, "/viewQuest");
+                    Navigator.pushNamed(context, "/add");
                   },
                 ),
-                ListTile(
-                  title: Container(
-                    padding: const EdgeInsets.only(bottom: 15.0),
-                    margin: const EdgeInsets.only(top: 15.0),
-                    decoration: BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(
-                              color: const Color.fromRGBO(0, 0, 0, 0.1),
-                              width: 1.2)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Container(
-                                margin: const EdgeInsets.only(right: 15.0),
-                                child: Icon(
-                                  Icons.list,
-                                  size: 25.0,
-                                  color: const Color.fromRGBO(0, 0, 0, 0.3),
-                                  // color: Theme.of(context).primaryColor,
-                                  // color: Colors.orange[600],
-                                )),
-                            Text(
-                              '퀘스트 목록',
-                              style: TextStyle(
-                                fontSize: 20.0, fontFamily: 'NanumSquare',
-                                //  color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          '5',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            // color:  Color.fromRGBO(0, 0, 0, 0.6)
-                            // color: Theme.of(context).primaryColor,
-                            color: Colors.orange[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.pushNamed(context, "/viewQuestList");
-                  },
-                ),
+                // ListTile(
+                //   title: Container(
+                //     padding: const EdgeInsets.only(bottom: 15.0),
+                //     margin: const EdgeInsets.only(top: 15.0),
+                //     decoration: BoxDecoration(
+                //       border: Border(
+                //           bottom: BorderSide(
+                //               color: const Color.fromRGBO(0, 0, 0, 0.1),
+                //               width: 1.2)),
+                //     ),
+                //     child: Row(
+                //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //       children: <Widget>[
+                //         Row(
+                //           children: <Widget>[
+                //             Container(
+                //                 margin: const EdgeInsets.only(right: 15.0),
+                //                 child: Icon(
+                //                   Icons.list,
+                //                   size: 25.0,
+                //                   color: const Color.fromRGBO(0, 0, 0, 0.3),
+                //                   // color: Theme.of(context).primaryColor,
+                //                   // color: Colors.orange[600],
+                //                 )),
+                //             Text(
+                //               '퀘스트 목록',
+                //               style: TextStyle(
+                //                 fontSize: 20.0, fontFamily: 'NanumSquare',
+                //                 //  color: Theme.of(context).primaryColor,
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //         Text(
+                //           '5',
+                //           style: TextStyle(
+                //             fontSize: 16.0,
+                //             // color:  Color.fromRGBO(0, 0, 0, 0.6)
+                //             // color: Theme.of(context).primaryColor,
+                //             color: Colors.orange[600],
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                //   onTap: () {
+                //     Navigator.pushNamed(context, "/viewQuestList");
+                //   },
+                // ),
                 ListTile(
                   title: Container(
                     padding: const EdgeInsets.only(bottom: 15.0),

@@ -46,12 +46,12 @@ class HomePageState extends State<HomePage>
     return Future.value(true);
   }
 
-  int _currentIndex = 0;
-  void onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
+  // int _currentIndex = 0;
+  // void onTabTapped(int index) {
+  //   setState(() {
+  //     _currentIndex = index;
+  //   });
+  // }
 
   @override
   void initState() {
@@ -281,39 +281,42 @@ class HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("QCUE", style: TextStyle(color: Colors.orange[800]),),
-        iconTheme: new IconThemeData(color: Colors.orange[800]),
-        elevation: 0.3,
-        centerTitle: true,
-        actions: <Widget>[
-          new IconButton(
-            icon: new Icon(Icons.add, color: Colors.orange[800]),
-            onPressed: () {
-              Navigator.pushNamed(context, '/add');
-              // Navigator.push(context, MaterialPageRoute(
-              //     builder: (context) => CreateQuestListPage(),
-              //   ),
-              // );
-            },
-          ),
-          // backgroundColor: Colors.orange[800],
-          IconButton(
-            icon: new Icon(Icons.search),
-            onPressed: () {
-              Navigator.pushNamed(context, '/search');
-              // Navigator.of(context).push(
-              //   new MaterialPageRoute(builder: (context) => new SearchPage()),
-              // );
-            },
-          )
-        ],
+    return WillPopScope(
+      onWillPop: onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("QCUE", style: TextStyle(color: Colors.orange[800]),),
+          iconTheme: new IconThemeData(color: Colors.orange[800]),
+          elevation: 0.3,
+          centerTitle: true,
+          actions: <Widget>[
+            // new IconButton(
+            //   icon: new Icon(Icons.add, color: Colors.orange[800]),
+            //   onPressed: () {
+            //     Navigator.pushNamed(context, '/add');
+            //     // Navigator.push(context, MaterialPageRoute(
+            //     //     builder: (context) => CreateQuestListPage(),
+            //     //   ),
+            //     // );
+            //   },
+            // ),
+            // backgroundColor: Colors.orange[800],
+            IconButton(
+              icon: new Icon(Icons.search),
+              onPressed: () {
+                Navigator.pushNamed(context, '/search');
+                // Navigator.of(context).push(
+                //   new MaterialPageRoute(builder: (context) => new SearchPage()),
+                // );
+              },
+            )
+          ],
+          backgroundColor: Colors.orange[50],
+        ),
+        drawer: CustomDrawer(),
+        body: _mainBodyBuilder(context),
         backgroundColor: Colors.orange[50],
       ),
-      drawer: CustomDrawer(),
-      body: _mainBodyBuilder(context),
-      backgroundColor: Colors.orange[50],
     );
   }
 }

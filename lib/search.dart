@@ -78,7 +78,21 @@ class SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("SEARCH", style: TextStyle(color: Colors.orange[800]),),
+        title: Row(
+          children: <Widget>[
+            Expanded(child: TextField(controller: _queryController, style: TextStyle(color: Colors.orange[800]),)),
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: (){
+                setState(() {
+                widget.searched=true;
+                  widget.query=_queryController.text;
+                  build(context);
+                });
+              },
+            )
+          ],
+        ),
         iconTheme: new IconThemeData(color: Colors.orange[800]),
         elevation: 0.3,
         centerTitle: true,
@@ -86,25 +100,26 @@ class SearchPageState extends State<SearchPage> {
       ),
       body: Column(
         children: <Widget>[
-          Row(
-            children: <Widget>[            
-              Expanded(
-                child: TextField(
-                  controller: _queryController,
-                ),
-              ),
-              IconButton(
-                icon: Icon(Icons.search),
-                onPressed: (){
-                  setState(() {
-                  widget.searched=true;
-                    widget.query=_queryController.text;
-                    build(context);
-                  });
-                },
-              )
-            ],
-          ),
+          // Row(
+          //   children: <Widget>[            
+          //     Expanded(
+                // child: 
+                // TextField(
+                //   controller: _queryController,
+                // ),
+          //     ),
+          //     IconButton(
+          //       icon: Icon(Icons.search),
+          //       onPressed: (){
+          //         setState(() {
+          //         widget.searched=true;
+          //           widget.query=_queryController.text;
+          //           build(context);
+          //         });
+          //       },
+          //     )
+          //   ],
+          // ),
           Flexible(
             child:
             widget.searched?  _buildBody(context): new Container(width: 1,height: 1,),
