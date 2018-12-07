@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-
-//firebase packages
-// import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:timeline/model/timeline_model.dart';
+import 'package:timeline/timeline.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'drawer.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({Key key}) : super(key: key);
@@ -13,21 +13,48 @@ class MyPage extends StatefulWidget {
 }
 
 class MyPageState extends State<MyPage> {
-  String _imageUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjhJ_fE8brBZTj3ZXyqbs00etqFS7shBubvpVai0p0NkY7fHaZ-g';
+  static GoogleSignIn _googleSignIn = GoogleSignIn();
+  String _imageUrl =
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjhJ_fE8brBZTj3ZXyqbs00etqFS7shBubvpVai0p0NkY7fHaZ-g';
+
+  final List<TimelineModel> list = [
+    TimelineModel(id: "1", description: "Test 1", title: "Test 1"),
+    TimelineModel(id: "2", description: "Test 2", title: "Test 2")
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "My Page",
-            style: TextStyle(color: Colors.orange[800]),
+       appBar: AppBar(
+         title: Text('My Profile', style: TextStyle(color: Colors.orange[800]),),
+          leading: IconButton(
+            icon: Icon(
+              Icons.keyboard_backspace,
+              semanticLabel: 'back',
+              color: Colors.orange[800],
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
-          iconTheme: new IconThemeData(color: Colors.orange[800]),
-          elevation: 0.3,
-          centerTitle: true,
+          // title: Text('My Page'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.exit_to_app,
+                color: Colors.orange[800],
+              ),
+              onPressed: () async {
+                // await FirebaseAuth.instance.signOut();
+                //검사용:
+                await _googleSignIn.signOut();
+                // await FBApi.signOut();
+                Navigator.pushNamed(context, '/login');
+              },
+            ),
+          ],
           backgroundColor: Colors.orange[50],
         ),
-        drawer: CustomDrawer(),
         backgroundColor: Colors.orange[50],
         body: StreamBuilder(
             stream: FirebaseAuth.instance.currentUser().asStream(),
@@ -43,99 +70,47 @@ class MyPageState extends State<MyPage> {
                   ],
                 );
               } else {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                return Stack(
+                  alignment: Alignment.center,
                   children: <Widget>[
-                    InkWell(
-                      child: Container(
-                        padding: const EdgeInsets.only(bottom: 0.0, left: 10.0),
-                        margin: const EdgeInsets.only(top: 20.0, bottom: 20.0, left: 10.0),
-
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                              width: 60.0, height: 60.0,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image:  DecorationImage(
-                                    image: 
-                                    snapshot.data.photoUrl == null 
-                                    ? Image.network(_imageUrl) 
-                                    : NetworkImage(snapshot.data.photoUrl),
-                                    fit: BoxFit.cover),
-                              ),
-                              margin:
-                                  const EdgeInsets.only(right: 10.0, left: 0.0),
-                              // padding:const EdgeInsets.only(left: 0.0) ,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.only(top: 10.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Text(
-                                    '안녕하세요! \n' + snapshot.data.displayName + '님',
-                                    style: TextStyle(
-                                        fontSize: 20.0,
-                                        fontFamily: 'NanumSquare'),
-                                  ),
-                                  Text(
-                                    snapshot.data.email,
-                                    style: TextStyle(
-                                        fontSize: 15.0,
-                                        color: const Color.fromRGBO(0, 0, 0, 0.5),
-                                        fontFamily: 'NanumSquare'),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    new Container(
-                      padding: EdgeInsets.all(20.0),
-                      child: new Column(
-                        // mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          new Container(
-                            padding: EdgeInsets.only(bottom: 20.0),
-                            width: 100.0,
-                            height: 100.0,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: new DecorationImage(
-                                  fit: BoxFit.fill,
-                                  image:
-                                      new NetworkImage(snapshot.data.photoUrl),
-                                )),
+                    // background image and bottom contents
+                    Column(
+                      children: <Widget>[
+                        Container(
+                          height: 200.0,
+                          color: Colors.orange,
+                          child: Center(
+                            child: Image.asset('assets/profilebackground.jpeg',fit: BoxFit.fill,width: double.infinity,),
                           ),
-                          new Container(
-                            padding: EdgeInsets.only(top: 10.0),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.only(top:100.0),
+                            // color: Colors.white,
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                new Text(
-                                  '안녕하세요! ' + snapshot.data.displayName + '님',
-                                  style: TextStyle(fontSize: 20.0),
-                                ),
-                                new Text('계획없는 목표는 한낱 꿈에 불과하다.')
+                                Text(snapshot.data.displayName),
+                                Text(snapshot.data.email),
+                                // Text(snapshot.data.phoneNumber)
                               ],
                             ),
                           ),
-                        ],
-                      ),
+                        )
+                      ],
                     ),
+                    // Profile image
+                    Positioned(
+                      top:
+                          150.0, // (background container size) - (circle height / 2)
+                      child: new ClipRRect(
+                        borderRadius: new BorderRadius.circular(100.0),
+                        child: Image.network(snapshot.data.photoUrl, height: 95.0, width: 95.0,),
+                      ),
 
+                    )
                   ],
                 );
               }
-            }
-          )
-        );
+            }));
   }
 }
