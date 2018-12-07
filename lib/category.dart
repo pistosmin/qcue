@@ -104,14 +104,15 @@ class CategoryPageState extends State<CategoryPage>
               ),
             ),
             Hero(
-              tag: '${ongoing_quests.documentID}',
+              tag: 'detail',
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  child: Image.network(
+                  child: 
+                  Image.network(
                     record.image,
                     width: double.infinity,
-                    height: 60.0,
+                    height: 130.0,
                     fit: BoxFit.fill,
                   ),
                 ),
@@ -138,7 +139,7 @@ class CategoryPageState extends State<CategoryPage>
                               MaterialPageRoute(
                                 builder: (context) => DetailPage(
                                       // documentid: record.reference.documentID,
-                                      // userID: uid,
+                                      userID: uid,
                                       documentID: record.uid,
                                       name: record.name,
                                       writer: record.writer,
@@ -284,30 +285,30 @@ class Record {
   String toString() => "Record<$name:$writer>";
 }
 
-class PhotoHero extends StatelessWidget {
-  const PhotoHero({Key key, this.photo, this.onTap, this.width, this.height})
-      : super(key: key);
-  final String photo;
-  final VoidCallback onTap;
-  final double width;
-  final double height;
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Hero(
-        tag: photo,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            child: Image.network(
-              photo,
-              fit: BoxFit.fill,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// class PhotoHero extends StatelessWidget {
+//   const PhotoHero({Key key, this.photo, this.onTap, this.width, this.height})
+//       : super(key: key);
+//   final String photo;
+//   final VoidCallback onTap;
+//   final double width;
+//   final double height;
+//   Widget build(BuildContext context) {
+//     return SizedBox(
+//       width: width,
+//       height: height,
+//       child: Hero(
+//         tag: photo,
+//         child: Material(
+//           color: Colors.transparent,
+//           child: InkWell(
+//             onTap: onTap,
+//             child: Image.network(
+//               photo,
+//               fit: BoxFit.fill,
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

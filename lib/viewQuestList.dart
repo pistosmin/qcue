@@ -3,12 +3,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 import 'category.dart';
 import 'add.dart';
 import 'search.dart';
 import 'detail.dart';
 import 'createQuestList.dart';
-import 'dropMenu.dart';
+// import 'dropMenu.dart';
+import 'drawer.dart';
+// import 'record.dart';
+
 
 class ViewQuestList extends StatefulWidget {
   const ViewQuestList({Key key}) : super(key: key);
@@ -20,20 +25,33 @@ class ViewQuestList extends StatefulWidget {
 
 class ViewQuestListState extends State<ViewQuestList>
     with SingleTickerProviderStateMixin {
-  ScrollController scrollController;
   final List<Tab> myTabs = <Tab>[
     Tab(text: 'LEFT'),
     Tab(text: 'RIGHT'),
   ];
-  List<int> _myList = new List();
+  // List<int> _myList = new List();
 
-  void onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+  ScrollController scrollController;
+  TabController _tabController;
+
+  DateTime currentBackPressTime = DateTime.now();
+
+  Future<bool> onWillPop() {
+    DateTime now = DateTime.now();
+    if (now.difference(currentBackPressTime) > Duration(seconds: 2)) {
+      currentBackPressTime = now;
+      Fluttertoast.showToast(msg: "한번 더 누르면 종료됩니다.");
+      return Future.value(false);
+    }
+    return Future.value(true);
   }
 
-  TabController _tabController;
+  // int _currentIndex = 0;
+  // void onTabTapped(int index) {
+  //   setState(() {
+  //     _currentIndex = index;
+  //   });
+  // }
 
   @override
   void initState() {
@@ -48,8 +66,6 @@ class ViewQuestListState extends State<ViewQuestList>
     super.dispose();
   }
 
-  int _currentIndex = 0;
-  final List<Widget> _children = [];
   Widget _buildBody(BuildContext context, String uid) {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
@@ -59,21 +75,40 @@ class ViewQuestListState extends State<ViewQuestList>
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LinearProgressIndicator();
-        return Center(
-        child: OrientationBuilder(builder: (context, orientation) {
-          return GridView.count(
-            crossAxisCount: orientation == Orientation.portrait ? 2 : 3,
+        return Container(
+          child: GridView.count(
+            crossAxisCount: 1,
             padding: EdgeInsets.all(16.0),
-            childAspectRatio: 8.0 / 9.0,
-            children: _buildGridCards(context, snapshot.data.documents),
-          );
-        }),
-      );
+            childAspectRatio: 15.0 / 11.0,
+            children: _buildGridCards(context, snapshot.data.documents, uid),
+          ),
+        );
       },
     );
   }
 
-  Widget _buildDoneBody(BuildContext context) {
+  Widget _buildProgressBody(BuildContext context, String uid) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance
+          .collection('ongoing_quests')
+          .where('participant',
+              arrayContains: uid) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return LinearProgressIndicator();
+        return Container(
+          child: GridView.count(
+            crossAxisCount: 1,
+            padding: EdgeInsets.all(16.0),
+            childAspectRatio: 15.0 / 11.0,
+            children: _buildGridCards(context, snapshot.data.documents, uid),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDoneBody(BuildContext context, String uid) {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
           .collection('ongoing_quests')
@@ -86,7 +121,7 @@ class ViewQuestListState extends State<ViewQuestList>
             crossAxisCount: 1,
             padding: EdgeInsets.all(16.0),
             childAspectRatio: 15.0 / 11.0,
-            children: _buildGridCards(context, snapshot.data.documents),
+            children: _buildGridCards(context, snapshot.data.documents, uid),
           ),
         );
       },
@@ -94,7 +129,7 @@ class ViewQuestListState extends State<ViewQuestList>
   }
 
   List<Card> _buildGridCards(
-      BuildContext context, List<DocumentSnapshot> documents) {
+      BuildContext context, List<DocumentSnapshot> documents, String uid) {
     if (documents == null || documents.isEmpty) {
       return const [];
     }
@@ -103,30 +138,31 @@ class ViewQuestListState extends State<ViewQuestList>
       final record = Record.fromSnapshot(ongoing_quests);
       // print(record.participant.contains('JGua38JkfYTbF7cFK6Q7cvXyIMw2'));
       // ongoing_quests.documentID
+      // print('this is hero tag ${ongoing_quests.documentID}');
       return Card(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Container(
-              padding: EdgeInsets.all(
-                8.0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    record.name,
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    record.writer,
-                    style: TextStyle(fontSize: 15.0, color: Colors.grey[800]),
-                  )
-                ],
-              ),
-            ),
+            // Container(
+            //   padding: EdgeInsets.all(
+            //     8.0,
+            //   ),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: <Widget>[
+            //       Text(
+            //         record.name,
+            //         style:
+            //             TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            //       ),
+            //       Text(
+            //         record.writer,
+            //         style: TextStyle(fontSize: 15.0, color: Colors.grey[800]),
+            //       )
+            //     ],
+            //   ),
+            // ),
             // Image.network(
             //   record.image,
             //   width: double.infinity,
@@ -134,7 +170,7 @@ class ViewQuestListState extends State<ViewQuestList>
             //   fit: BoxFit.fill,
             // ),
             Hero(
-              tag: '${ongoing_quests.documentID}',
+              tag: 'detail',
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -142,7 +178,7 @@ class ViewQuestListState extends State<ViewQuestList>
                   Image.network(
                     record.image,
                     width: double.infinity,
-                    height: 60.0,
+                    height: 130.0,
                     fit: BoxFit.fill,
                   ),
                 ),
@@ -167,7 +203,7 @@ class ViewQuestListState extends State<ViewQuestList>
                           MaterialPageRoute(
                             builder: (context) => DetailPage(
                                   // documentid: record.reference.documentID,
-                                  // userID: uid,
+                                  userID: uid,
                                   documentID: record.uid,
                                   name: record.name,
                                   writer: record.writer,
@@ -176,7 +212,8 @@ class ViewQuestListState extends State<ViewQuestList>
                                 ),
                           ));
                     },
-                    child: new Text('more'),
+                    child: new Text('MORE',
+                      style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold),),
                   ),
                 ],
               ),
@@ -187,64 +224,98 @@ class ViewQuestListState extends State<ViewQuestList>
     }).toList();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("My Quest List"),
-        centerTitle: true,
-        actions: <Widget>[
-          new IconButton(
-            icon: new Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CreateQuestListPage(),
-                ),
-              );
-            },
-          ),
-          // backgroundColor: Colors.orange[800],
-          IconButton(
-            icon: new Icon(Icons.search),
-            onPressed: () {
-              Navigator.of(context).push(
-                new MaterialPageRoute(builder: (context) => new SearchPage()),
-              );
-            },
-          )
-        ],
-        backgroundColor: Colors.orange[800],
-      ),
-      drawer: CustomDrawer(),
-      body: StreamBuilder(
+  Widget _mainBodyBuilder(context) {
+    return StreamBuilder(
         stream: FirebaseAuth.instance.currentUser().asStream(),
         builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
-          if (snapshot.data.isAnonymous) {
             return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text('You are Guest'),
-                StreamBuilder(
-                  stream: FirebaseAuth.instance.currentUser().asStream(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<FirebaseUser> snapshot) {
-                    return Text('uid: ${snapshot.data.uid}');
-                  },
+                DefaultTabController(
+                  length: 3,
+                  initialIndex: 0,
+                  child: Column(
+                    children: <Widget>[
+                      TabBar(
+                        indicatorWeight: 2.0,
+                        indicatorColor: Theme.of(context).primaryColor,
+                        labelColor: Colors.orange[800],
+                        tabs: <Widget>[
+                          Tab(
+                            text: '전체',
+                          ),
+                          Tab(
+                            text: '진행중인 퀘스트',
+                          ),
+                          Tab(
+                            text: '완료한 퀘스트',
+                          )
+                        ],
+                      ),
+                      Container(
+                        height: 650.0,
+                        child: TabBarView(
+                          children: <Widget>[
+                            Center(
+                              child: _buildBody(context, snapshot.data.uid),
+                            ),
+                            Center(
+                              child: _buildProgressBody(context, snapshot.data.uid),
+                            ),
+                            Center(
+                              child: _buildDoneBody(context, snapshot.data.uid),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             );
-          } else {
-            return Center(
-        child: _buildBody(context, snapshot.data.uid),
-      );
-          }
         },
+      );
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("My List", style: TextStyle(color: Colors.orange[800]),),
+          iconTheme: new IconThemeData(color: Colors.orange[800]),
+          elevation: 0.3,
+          centerTitle: true,
+          actions: <Widget>[
+            // new IconButton(
+            //   icon: new Icon(Icons.add, color: Colors.orange[800]),
+            //   onPressed: () {
+            //     Navigator.pushNamed(context, '/add');
+            //     // Navigator.push(context, MaterialPageRoute(
+            //     //     builder: (context) => CreateQuestListPage(),
+            //     //   ),
+            //     // );
+            //   },
+            // ),
+            // backgroundColor: Colors.orange[800],
+            IconButton(
+              icon: new Icon(Icons.search),
+              onPressed: () {
+                Navigator.pushNamed(context, '/search');
+                // Navigator.of(context).push(
+                //   new MaterialPageRoute(builder: (context) => new SearchPage()),
+                // );
+              },
+            )
+          ],
+          backgroundColor: Colors.orange[50],
+        ),
+        drawer: CustomDrawer(),
+        body: _mainBodyBuilder(context),
+        backgroundColor: Colors.orange[50],
       ),
     );
   }
@@ -286,32 +357,4 @@ class Record {
 
   @override
   String toString() => "Record<$name:$writer>";
-}
-
-class PhotoHero extends StatelessWidget {
-  const PhotoHero({Key key, this.photo, this.onTap, this.width, this.height})
-      : super(key: key);
-  final String photo;
-  final VoidCallback onTap;
-  final double width;
-  final double height;
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Hero(
-        tag: photo,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            child: Image.network(
-              photo,
-              fit: BoxFit.fill,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
