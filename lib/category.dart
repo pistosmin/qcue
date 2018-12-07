@@ -8,7 +8,8 @@ import 'add.dart';
 import 'search.dart';
 import 'detail.dart';
 import 'createQuestList.dart';
-import 'dropMenu.dart';
+// import 'dropMenu.dart';
+import 'drawer.dart';
 
 class CategoryPage extends StatefulWidget {
   String category;
@@ -58,9 +59,10 @@ class CategoryPageState extends State<CategoryPage>
         return Center(
           child: OrientationBuilder(builder: (context, orientation) {
             return GridView.count(
-              crossAxisCount: orientation == Orientation.portrait ? 2 : 3,
+              crossAxisCount: 1,
+              // crossAxisCount: orientation == Orientation.portrait ? 2 : 3,
               padding: EdgeInsets.all(16.0),
-              childAspectRatio: 8.0 / 9.0,
+              childAspectRatio: 8.0 / 8.0,
               children: _buildGridCards(context, snapshot.data.documents, uid),
             );
           }),
@@ -97,21 +99,23 @@ class CategoryPageState extends State<CategoryPage>
                         TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    record.writer,
+                    record.creatorName,
                     style: TextStyle(fontSize: 15.0, color: Colors.grey[800]),
                   )
                 ],
               ),
             ),
             Hero(
+              // tag: '$uid',
               tag: '${ongoing_quests.documentID}',
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  child: Image.network(
+                  child: 
+                  Image.network(
                     record.image,
                     width: double.infinity,
-                    height: 60.0,
+                    height: 130.0,
                     fit: BoxFit.fill,
                   ),
                 ),
@@ -125,7 +129,7 @@ class CategoryPageState extends State<CategoryPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    record.explanation,
+                    record.description,
                     style: TextStyle(fontSize: 15.0, color: Colors.grey[800]),
                   ),
                   Row(
@@ -138,12 +142,12 @@ class CategoryPageState extends State<CategoryPage>
                               MaterialPageRoute(
                                 builder: (context) => DetailPage(
                                       // documentid: record.reference.documentID,
-                                      // userID: uid,
+                                      userID: uid,
                                       documentID: record.uid,
                                       name: record.name,
                                       writer: record.writer,
                                       image: record.image,
-                                      explanation: record.explanation,
+                                      description: record.description,
                                     ),
                               ));
                         },
@@ -189,31 +193,31 @@ class CategoryPageState extends State<CategoryPage>
       appBar: AppBar(
         title: Text(widget.category),
         centerTitle: true,
-        actions: <Widget>[
-          new IconButton(
-            icon: new Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CreateQuestListPage(),
-                ),
-              );
-            },
-          ),
-          // backgroundColor: Colors.orange[800],
-          IconButton(
-            icon: new Icon(Icons.search),
-            onPressed: () {
-              Navigator.of(context).push(
-                new MaterialPageRoute(builder: (context) => new SearchPage()),
-              );
-            },
-          )
-        ],
+        // actions: <Widget>[
+        //   new IconButton(
+        //     icon: new Icon(
+        //       Icons.add,
+        //       color: Colors.white,
+        //     ),
+        //     onPressed: () {
+        //       Navigator.push(
+        //         context,
+        //         MaterialPageRoute(
+        //           builder: (context) => CreateQuestListPage(),
+        //         ),
+        //       );
+        //     },
+        //   ),
+        //   // backgroundColor: Colors.orange[800],
+        //   IconButton(
+        //     icon: new Icon(Icons.search),
+        //     onPressed: () {
+        //       Navigator.of(context).push(
+        //         new MaterialPageRoute(builder: (context) => new SearchPage()),
+        //       );
+        //     },
+        //   )
+        // ],
         backgroundColor: Colors.orange[800],
       ),
       drawer: CustomDrawer(),
@@ -248,32 +252,35 @@ class CategoryPageState extends State<CategoryPage>
 
 class Record {
   final String name;
+  final String creatorName;
   final String image;
   final String writer;
-  final String explanation;
+  final String description;
   final String uid;
   List<dynamic> participant;
-  final int favo;
-  final int down;
+  final bool favorites;
+  final int downloads;
   final int comment;
   final DocumentReference reference;
 
   Record.fromMap(Map<String, dynamic> map, {this.reference})
       : assert(map['name'] != null),
+        assert(map['creatorName'] != null),
         assert(map['writer'] != null),
-        assert(map['explanation'] != null),
+        assert(map['description'] != null),
         assert(map['image'] != null),
-        assert(map['favo'] != null),
-        assert(map['down'] != null),
+        assert(map['favorites'] != null),
+        assert(map['downloads'] != null),
         assert(map['comment'] != null),
         assert(map['participant'] != null),
         uid = reference.documentID,
         name = map['name'],
+        creatorName = map['creatorName'],
         writer = map['writer'],
-        explanation = map['explanation'],
+        description = map['description'],
         image = map['image'],
-        favo = map['favo'],
-        down = map['down'],
+        favorites = map['favorites'],
+        downloads = map['downloads'],
         comment = map['comment'],
         participant = map['participant'];
 
@@ -284,30 +291,30 @@ class Record {
   String toString() => "Record<$name:$writer>";
 }
 
-class PhotoHero extends StatelessWidget {
-  const PhotoHero({Key key, this.photo, this.onTap, this.width, this.height})
-      : super(key: key);
-  final String photo;
-  final VoidCallback onTap;
-  final double width;
-  final double height;
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Hero(
-        tag: photo,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            child: Image.network(
-              photo,
-              fit: BoxFit.fill,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// class PhotoHero extends StatelessWidget {
+//   const PhotoHero({Key key, this.photo, this.onTap, this.width, this.height})
+//       : super(key: key);
+//   final String photo;
+//   final VoidCallback onTap;
+//   final double width;
+//   final double height;
+//   Widget build(BuildContext context) {
+//     return SizedBox(
+//       width: width,
+//       height: height,
+//       child: Hero(
+//         tag: photo,
+//         child: Material(
+//           color: Colors.transparent,
+//           child: InkWell(
+//             onTap: onTap,
+//             child: Image.network(
+//               photo,
+//               fit: BoxFit.fill,
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home.dart';
-import 'questList.dart';
+import 'viewQuestList.dart';
 import 'add.dart';
 import 'gridcategory.dart';
 
@@ -94,7 +94,7 @@ class CustomDrawerState extends State<CustomDrawer> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => QuestListPage()),
+                        MaterialPageRoute(builder: (context) => ViewQuestList()),
                       );
                     }),
                     new ListTile(

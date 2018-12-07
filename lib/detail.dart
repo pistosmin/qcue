@@ -5,17 +5,29 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+enum DialogDemoAction {
+  cancel,
+  search,
+  disagree,
+  agree,
+}
+
+const String _alertWithoutTitleText = 'Simple Alert Dialog';
+
 class DetailPage extends StatefulWidget {
+  
   String userID;
   String documentID;
-  String name, image, writer, explanation;
+  String name, image, writer, description;
   DetailPage(
       {Key key,
       @required this.userID,
       @required this.documentID,
       @required this.name,
       @required this.writer,
-      @required this.explanation,
+      @required this.description,
       @required this.image})
       : super(key: key);
   @override
@@ -23,6 +35,8 @@ class DetailPage extends StatefulWidget {
 }
 
 class DetailPageState extends State<DetailPage> {
+  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
   Widget _buildBody(BuildContext context, String uid) {
     // print(widget.documentID);
     print(widget.image);
@@ -79,7 +93,7 @@ class DetailPageState extends State<DetailPage> {
                       ),
                       Center(
                         child: Text(
-                          '\n\n\"' + widget.explanation + '\"',
+                          '\n\n\"' + widget.description + '\"',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 15.0,
@@ -156,6 +170,7 @@ class DetailPageState extends State<DetailPage> {
             });
           },
           title: Text(quest.name),
+          subtitle: Text(quest.description),
         ),
       );
     }).toList();
@@ -177,44 +192,93 @@ class DetailPageState extends State<DetailPage> {
       ),
     );
   }
+  
+  void showDemoDialog<T>({ BuildContext context, Widget child }) {
+    showDialog<T>(
+      context: context,
+      builder: (BuildContext context) => child,
+    )
+    .then<void>((T value) { // The value passed to Navigator.pop() or null.
+      if (value != null) {
+        _scaffoldKey.currentState.showSnackBar(new SnackBar(
+          content: new Text('You selected: $value')
+        ));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detail'),
-        actions: <Widget>[
-          new IconButton(
-            icon: new Icon(
-              Icons.delete_forever,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Firestore.instance.collection('ongoing_quests').document('${widget.documentID}').delete().then((_){print('Document Deleted');}).catchError((e){print(e);});
-                    Navigator.pop(context);
-            },
-          ),
-        ],
+        title: Text("Detail", style: TextStyle(color: Colors.orange[800]),),
+        iconTheme: new IconThemeData(color: Colors.orange[800]),
+        elevation: 0.3,
+        centerTitle: true,
+        // backgroundColor: Colors.white,
+        backgroundColor: Colors.orange[50],
+
       ),
+      
+      floatingActionButton: FloatingActionButton.extended(
+        tooltip: 'ADD', // Tests depend on this label to exit the demo.
+        onPressed: () {
+          showDialog<DialogDemoAction>(
+            context: context,
+            child: new AlertDialog(
+              content:
+              Column(
+                children: <Widget>[
+                  SizedBox(height: 10.0,),
+                  new Text(
+                    'STEP ADD',
+                  ),
+                  SizedBox(height: 10.0,),
+                  TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      filled: true,
+                      labelText: 'STEP Name',
+                    ),
+                  ),
+                  SizedBox(height: 10.0,),
+                  TextField(
+                    controller: _descriptionController,
+                    decoration: InputDecoration(
+                      filled: true,
+                      labelText: 'STEP Description',
+                    ),
+                  ),
+
+                ],
+              ),
+              actions: <Widget>[
+                new FlatButton(
+                  child: const Text('ADD'),
+                  onPressed: () {                    
+                    Firestore.instance.collection('ongoing_quests').document(widget.documentID).collection('quest').document().setData({'name':'${_nameController.text}', 'description':'${_descriptionController.text}','isClear':'false','Time':DateTime.now()});
+                    Navigator.pop(context, DialogDemoAction.search); 
+                  }
+                ),
+                new FlatButton(
+                  child: const Text('CANCEL'),
+                  onPressed: () { Navigator.pop(context, DialogDemoAction.cancel); }
+                ),
+              ]
+            )
+          );
+          _nameController.clear();
+          _descriptionController.clear();
+        },
+        label: const Text('STEP', style: TextStyle(color: Colors.white),),
+        icon: const Icon(Icons.add, color: Colors.white,),
+      ),
+      
       body: StreamBuilder(
         stream: FirebaseAuth.instance.currentUser().asStream(),
         builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
-          if (snapshot.data.isAnonymous) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Text('You are Guest'),
-                StreamBuilder(
-                  stream: FirebaseAuth.instance.currentUser().asStream(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<FirebaseUser> snapshot) {
-                    return Text('uid: ${snapshot.data.uid}');
-                  },
-                ),
-              ],
-            );
-          } else {
+            // print('this is hero detail tag ${widget.documentID}');
+
             return Container(
                 child: Column(
               children: <Widget>[
@@ -262,7 +326,7 @@ class DetailPageState extends State<DetailPage> {
                           ),
                           Center(
                             child: Text(
-                              '\n\n\"' + widget.explanation + '\"',
+                              '\n\n\"' + widget.description + '\"',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 15.0,
@@ -277,7 +341,6 @@ class DetailPageState extends State<DetailPage> {
                 _questList(context),
               ],
             ));
-          }
         },
       ),
     );
@@ -286,16 +349,19 @@ class DetailPageState extends State<DetailPage> {
 
 class Quest {
   final String name;
-  // final int down;
+  final String description;
+  // final int downloads;
   final String isClear;
   final DocumentReference reference;
 
   Quest.fromMap(Map<String, dynamic> map, {this.reference})
       : assert(map['name'] != null),
-        // assert(map['down'] != null),
+        assert(map['description'] != null),
+        // assert(map['downloads'] != null),
         assert(map['isClear'] != null),
         name = map['name'],
-        // down = map['down'],
+        description = map['description'],
+        // downloads = map['downloads'],
         isClear = map['isClear'];
 
   Quest.fromSnapshot(DocumentSnapshot snapshot)
@@ -314,30 +380,30 @@ class Quest {
 //   },
 // );
 
-class PhotoHero extends StatelessWidget {
-  const PhotoHero({Key key, this.photo, this.onTap, this.width, this.height})
-      : super(key: key);
-  final String photo;
-  final VoidCallback onTap;
-  final double width;
-  final double height;
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Hero(
-        tag: photo,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            child: Image.network(
-              photo,
-              fit: BoxFit.fill,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// class PhotoHero extends StatelessWidget {
+//   const PhotoHero({Key key, this.photo, this.onTap, this.width, this.height})
+//       : super(key: key);
+//   final String photo;
+//   final VoidCallback onTap;
+//   final double width;
+//   final double height;
+//   Widget build(BuildContext context) {
+//     return SizedBox(
+//       width: width,
+//       height: height,
+//       child: Hero(
+//         tag: photo,
+//         child: Material(
+//           color: Colors.transparent,
+//           child: InkWell(
+//             onTap: onTap,
+//             child: Image.network(
+//               photo,
+//               fit: BoxFit.fill,
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

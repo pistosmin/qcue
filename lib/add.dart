@@ -9,209 +9,304 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
 class AddPage extends StatefulWidget {
+  final List<String> _allActivities = <String>['study', 'sports', 'diet', 'travel', 'cook', 'all'];
+  String _activity = 'all';
+
   @override
   AddPageState createState() {
-    return new AddPageState();
+    return  AddPageState();
   }
 }
 
 class AddPageState extends State<AddPage> {
-  File _image;
-  String name;
-  String url =
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjhJ_fE8brBZTj3ZXyqbs00etqFS7shBubvpVai0p0NkY7fHaZ-g';
-  String explanation;
+  final FirebaseStorage storage = FirebaseStorage.instance;
+
+  final _questTitleController = TextEditingController();
+  final _questDescriptionController = TextEditingController();
+  final _questCategoryController = TextEditingController();
+
+  // quest lists parameters
+  String _creatorUID;
+  String _creatorName;
+
+  bool _isPublic = false;
+  bool _isPeriod = false;
+  bool _isAllDay = false;
+
+  bool _isClear = false;
+  int _comments = 0;
+  int _downloads = 0;
+  bool _favorites = false;
+
+  String _questTitle;
+  String _description;
+
+  List<String> _listTag = new List();
   String category;
-  static bool uploadFlag = true;
+
+  String _imageUrl;
+  File _image;
+  // String defaultImageUrl =
+  //     'https://firebasestorage.googleapis.com/v0/b/realfinal-a0b57.appspot.com/o/default.png?alt=media&token=b1d44724-0984-4232-969c-29564b4d6119';
+  String defaultImageUrl =
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjhJ_fE8brBZTj3ZXyqbs00etqFS7shBubvpVai0p0NkY7fHaZ-g';
+
+  DateTime _dateCreated;
+  DateTime _dateModified;
+
+  // flags for the creating quest list
+  //static bool uploadFlag = true;
+  bool _saveNeeded = false;
+  bool _hasTitle = false;
+  bool _hasDescription = false;
+
+
+  // static bool uploadFlag = true;
   Future getImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    uploadFlag = false;
+    // uploadFlag = false;
     setState(() {
       _image = image;
     });
   }
 
-  final _nameController = TextEditingController();
-  final _explanationController = TextEditingController();
-  final _categoryController = TextEditingController();
-  final FirebaseStorage storage = FirebaseStorage.instance;
+  Future<bool> _onWillPop() async {
+    // TODO 타이틀은 없고 디스크립션이 있을 때 자동으로 제목없음 이라는 타이틀과 함께 퀘스트를 생성할 것
+    _saveNeeded = _hasTitle || _saveNeeded; //_hasLocation || _hasName || _saveNeeded;
+    if (!_saveNeeded) return true;
+
+    final ThemeData theme = Theme.of(context);
+    final TextStyle dialogTextStyle =
+        theme.textTheme.subhead.copyWith(color: theme.textTheme.caption.color);
+
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: Text('퀘스트 작성을 취소할까요?', style: dialogTextStyle),
+              actions: <Widget>[
+                FlatButton(
+                    child: const Text('취소'),
+                    onPressed: () {
+                      Navigator.of(context).pop(
+                          false); // Pops the confirmation dialog but not the page.
+                    }),
+                FlatButton(
+                    child: const Text('삭제'),
+                    onPressed: () {
+                      Navigator.of(context).pop(
+                          true); // Returning true to _onWillPop will pop again.
+                    })
+              ],
+            );
+          },
+        ) ??
+        false;
+  }  
+
+  Widget _addQuest(){
+    return StreamBuilder(
+            stream: FirebaseAuth.instance.currentUser().asStream(),
+            builder:
+                (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
+                return  Form(
+                  onWillPop: _onWillPop,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                       Center(
+                        child: _image == null
+                            ?  Image.network(
+                                defaultImageUrl,
+                                height: 250,
+                              )
+                            :  Image.file(
+                                _image,
+                                height: 250.0,
+                              ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.camera_alt),
+                        onPressed: getImage,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        alignment: Alignment.bottomLeft,
+                        child: TextField(
+                          controller: _questTitleController,
+                          autofocus: true,
+                          decoration: InputDecoration(
+                            fillColor: Colors.white,
+                            filled: true,
+                            hintText: 'New Quest Title',
+                          ),
+                          onChanged: (String value) {
+                            setState(() {
+                              _hasTitle = value.isNotEmpty;
+                              if (_hasTitle) {
+                                _questTitle = value;
+                                _saveNeeded = true;
+                              }
+                            });
+                          }
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        alignment: Alignment.bottomLeft,
+                        child: TextField(
+                          controller: _questDescriptionController,
+                          decoration: InputDecoration(
+                            fillColor: Colors.white,
+                            filled: true,
+                            hintText: 'Enter The Description',
+                          ),
+                          onChanged: (String value) {
+                            setState(() {
+                              _hasDescription = value.isNotEmpty;
+                              if (_hasDescription) {
+                                _description = value;
+                                _saveNeeded = true;
+                              }
+                            });
+                          },
+                          maxLines: 3,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                              alignment: Alignment.centerLeft,
+                              child: Text("Select Category"),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            alignment: Alignment.centerRight,
+                            child: new Theme(
+                              data: Theme.of(context).copyWith(
+                                canvasColor: Colors.white,
+                              ),
+                              child: new DropdownButton<String>(
+                              style: TextStyle(color: Colors.orange[800]),
+                              value: widget._activity,
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  widget._activity = newValue;
+                                });
+                                // print(widget._activity);
+                              },
+                              items: widget._allActivities.map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                            )
+                          ),
+                        ],
+                      ),
+
+                      
+                      
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      ButtonBar(
+                        children: <Widget>[
+                          FlatButton(
+                            child: Text('CLEAR'),
+                            onPressed: () {
+                              _questTitleController.clear();
+                              _questDescriptionController.clear();
+                              _questCategoryController.clear();
+                            },
+                          ),
+                          RaisedButton(
+                            child: Text('CREATE', style: TextStyle(color: Colors.white),),
+                            color: Theme.of(context).primaryColor,
+                            onPressed: () async {
+                                    if (_image == null) {
+                                      _imageUrl = defaultImageUrl;
+                                    } else {
+                                      final StorageReference refer = storage.ref().child('picture').child(DateTime.now().toString());
+                                      final StorageUploadTask task = refer.putFile(_image);
+                                      _imageUrl = await (await task.onComplete).ref.getDownloadURL();                                  
+                                    }
+                                    _questTitle = _questTitleController.text;
+                                    _description = _questDescriptionController.text;
+                                    category = _questCategoryController.text;
+
+                                    final String _questUid = Uuid().v1();
+
+                                    _dateCreated = DateTime.now();
+                                    _dateModified = DateTime.now();
+                                    final List tempList=[];
+                                    tempList.add(snapshot.data.uid);
+                                    
+                                    Firestore.instance.collection('ongoing_quests').document(_questUid).setData({
+                                      'questUID': _questUid,
+                                      'name': _questTitle,
+                                      'description': _description,
+
+                                      'image': _imageUrl,
+
+                                      'writer': snapshot.data.uid,
+                                      'creatorName': snapshot.data.displayName,
+                                      
+                                      'category': widget._activity.toString(),
+                                      // 'category': category,
+                                      'isClear': "false",
+
+                                      'comment': _comments,
+                                      'downloads': _downloads,
+                                      'favorites': _favorites,
+
+                                      // 'participant': snapshot.data.uid,
+                                      'participant': tempList,
+
+                                      'dateCreated': _dateCreated,
+                                      'dateModified': _dateModified,
+                                    });
+
+                                
+                                    print('Upload Complete');
+                                    Navigator.pop(context);
+                                  }
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+            });
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(
-              Icons.keyboard_backspace,
-              semanticLabel: 'back',
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          title: Text('Add Quest List'),
-        ),
-        body: StreamBuilder(
-            stream: FirebaseAuth.instance.currentUser().asStream(),
-            builder:
-                (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
-              if (snapshot.data.isAnonymous) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Text('You are Guest'),
-                    Text('Please Login First'),
-                    StreamBuilder(
-                      stream: FirebaseAuth.instance.currentUser().asStream(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<FirebaseUser> snapshot) {
-                        return Text('uid: ${snapshot.data.uid}');
-                      },
-                    ),
-                  ],
-                );
-              } else {
-                return new Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    new Center(
-                      child: _image == null
-                          ? new Image.network(
-                              url,
-                              height: 250,
-                            )
-                          : new Image.file(
-                              _image,
-                              height: 250.0,
-                            ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.camera_alt),
-                      onPressed: getImage,
-                    ),
-                    TextField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        filled: true,
-                        labelText: 'Quest Name',
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    TextField(
-                      controller: _explanationController,
-                      decoration: InputDecoration(
-                        filled: true,
-                        labelText: 'explanation',
-                      ),
-                    ),
-                    TextField(
-                      controller: _categoryController,
-                      decoration: InputDecoration(
-                        filled: true,
-                        labelText: 'category',
-                      ),
-                    ),
-                    ButtonBar(
-                      children: <Widget>[
-                        FlatButton(
-                          child: Text('Clear'),
-                          onPressed: () {
-                            _nameController.clear();
-                            _explanationController.clear();
-                            _categoryController.clear();
-                          },
-                        ),
-                        RaisedButton(
-                          child: Text('Register'),
-                          onPressed: _image == null
-                              ? () async {
-                                  name = _nameController.text;
-                                  explanation = _explanationController.text;
-                                  category = _categoryController.text;
-                                  final String uuid = Uuid().v1();
-                                  Firestore.instance
-                                      .collection('ongoing_quests')
-                                      .document()
-                                      .setData({
-                                    'name': name,
-                                    'image': url,
-                                    // 'uploadTime': DateTime.now(),
-                                    // 'modifiedTime': DateTime.now(),
-                                    'writer': snapshot.data.uid,
-                                    'explanation': explanation,
-                                    'category': category,
-                                    'isClear': 'false',
-                                    'comment': '0',
-                                    'down': '0',
-                                    'favo': '0',
-                                  });
-                                  print('Upload Complete');
-                                  Navigator.pop(context);
-                                }
-                              : () async {
-                                  final StorageReference refer = FirebaseStorage
-                                      .instance
-                                      .ref()
-                                      .child('picture')
-                                      .child(DateTime.now().toString());
-                                  final StorageUploadTask task =
-                                      refer.putFile(_image);
-                                  url = await (await task.onComplete)
-                                      .ref
-                                      .getDownloadURL();
-                                  print(url);
-                                  name = _nameController.text;
-                                  explanation = _explanationController.text;
-                                  category = _categoryController.text;
-                                  final String uuid = Uuid().v1();
-                                  Firestore.instance
-                                      .collection('product')
-                                      .document(name)
-                                      .setData({
-                                    'name': name,
-                                    'image': url,
-                                    // 'uploadTime': DateTime.now(),
-                                    // 'modifiedTime': DateTime.now(),
-                                    'writer': snapshot.data.uid,
-                                    'explanation': explanation,
-                                    'category': category,
-                                  });
-                                  print('Upload Complete');
-                                  Navigator.pop(context);
-                                },
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              }
-            }));
+      appBar: AppBar(
+        title: Text(_hasTitle ? _questTitle : '새로운 퀘스트', style: TextStyle(color: Colors.orange[800]),),
+        iconTheme:  IconThemeData(color: Colors.orange[800]),
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Colors.orange[50],
+      ),
+      body: SingleChildScrollView(
+        child: _addQuest()
+      ),
+      backgroundColor: Colors.orange[50],
+    );
   }
-}
-
-class Record {
-  final String name;
-  final String photoUrl;
-  final int price;
-  final String uid;
-  final DocumentReference reference;
-
-  Record.fromMap(Map<String, dynamic> map, {this.reference})
-      : assert(map['name'] != null),
-        assert(map['price'] != null),
-        assert(map['photoUrl'] != null),
-        uid = reference.documentID,
-        name = map['name'],
-        price = map['price'],
-        photoUrl = map['photoUrl'];
-
-  Record.fromSnapshot(DocumentSnapshot snapshot)
-      : this.fromMap(snapshot.data, reference: snapshot.reference);
-
-  @override
-  String toString() => "Record<$name:$price>";
 }
