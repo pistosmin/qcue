@@ -44,7 +44,7 @@ class SearchPageState extends State<SearchPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             AspectRatio(
-              aspectRatio: 10 / 9,
+              aspectRatio: 9 / 9,
               child: new Image.network(
                 record.image,
                 height: 100.0,
@@ -80,7 +80,21 @@ class SearchPageState extends State<SearchPage> {
       appBar: AppBar(
         title: Row(
           children: <Widget>[
-            Expanded(child: TextField(controller: _queryController, style: TextStyle(color: Colors.orange[800]),)),
+            Expanded(
+              child: TextField(
+                controller: _queryController, 
+                autofocus: true, style: 
+                TextStyle(fontSize: 18, color: Colors.orange[800]),
+                decoration: InputDecoration(
+                  hintText: "search",
+                  border: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Theme.of(context).primaryColor,
+
+                    )
+                  )
+                ),
+              )),
             IconButton(
               icon: Icon(Icons.search),
               onPressed: (){

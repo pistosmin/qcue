@@ -7,8 +7,8 @@ class CustomDrawer extends StatefulWidget {
 }
 
 class CustomDrawerState extends State<CustomDrawer> {
-  String defaultImageUrl =
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjhJ_fE8brBZTj3ZXyqbs00etqFS7shBubvpVai0p0NkY7fHaZ-g';
+  String _imageUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjhJ_fE8brBZTj3ZXyqbs00etqFS7shBubvpVai0p0NkY7fHaZ-g';
+  // String _defaultImageUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjhJ_fE8brBZTj3ZXyqbs00etqFS7shBubvpVai0p0NkY7fHaZ-g';
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +38,9 @@ class CustomDrawerState extends State<CustomDrawer> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               image:  DecorationImage(
-                                  image: snapshot.data.photoUrl == null 
-                                  ? Image.network(defaultImageUrl) 
+                                  image: 
+                                  snapshot.data.photoUrl == null 
+                                  ? Image.network(_imageUrl) 
                                   : NetworkImage(snapshot.data.photoUrl),
                                   fit: BoxFit.cover),
                             ),

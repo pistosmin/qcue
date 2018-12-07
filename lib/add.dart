@@ -181,7 +181,6 @@ class AddPageState extends State<AddPage> {
                         alignment: Alignment.bottomLeft,
                         child: TextField(
                           controller: _questCategoryController,
-                          autofocus: true,
                           decoration: InputDecoration(
                             filled: true,
                             hintText: 'Select Category',
