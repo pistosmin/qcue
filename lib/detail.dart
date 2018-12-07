@@ -238,6 +238,10 @@ class DetailPageState extends State<DetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final TextStyle dialogTextStyle =
+        theme.textTheme.subhead.copyWith(color: theme.textTheme.caption.color);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -271,18 +275,39 @@ class DetailPageState extends State<DetailPage> {
           ),
           IconButton(
             icon: Icon(Icons.delete_forever),
-            onPressed: () {
-              print('delete');
-              Firestore.instance
-                  .collection('ongoing_quests')
-                  .document(widget.documentID)
-                  .delete()
-                  .then((_) {
-                print('Quest Deleted');
-              }).catchError((e) {
-                print(e);
-                Navigator.of(context).pop();
-              });
+            onPressed: () async {
+              await showDialog<bool>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    content: Text('퀘스를 삭제할까요?', style: dialogTextStyle),
+                    actions: <Widget>[
+                      FlatButton(
+                          child: const Text('취소'),
+                          onPressed: () {
+                            Navigator.of(context).pop(
+                                false); // Pops the confirmation dialog but not the page.
+                          }),
+                      FlatButton(
+                          child: const Text('삭제'),
+                          onPressed: () {
+                            print('delete');
+                            Firestore.instance
+                                .collection('ongoing_quests')
+                                .document(widget.documentID)
+                                .delete()
+                                .then((_) {
+                              Navigator.of(context).pop(true);
+                              Navigator.of(context).pop(true);
+                            }).catchError((e) {
+                              print(e);
+                              Navigator.of(context).pop(true);
+                            });
+                          })
+                    ],
+                  );
+                },
+              );
             },
           ),
           SizedBox(
