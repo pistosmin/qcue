@@ -36,7 +36,7 @@ class AddPageState extends State<AddPage> {
   bool _isClear = false;
   int _comments = 0;
   int _downloads = 0;
-  int _favoritesrites = 0;
+  bool _favorites = false;
 
   String _questTitle;
   String _description;
@@ -276,7 +276,7 @@ class AddPageState extends State<AddPage> {
 
                                       'comment': _comments,
                                       'downloads': _downloads,
-                                      'favorites': _favoritesrites,
+                                      'favorites': _favorites,
 
                                       // 'participant': snapshot.data.uid,
                                       'participant': tempList,

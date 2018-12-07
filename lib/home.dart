@@ -130,7 +130,7 @@ class HomePageState extends State<HomePage>
     );
   }
 
-  List<bool> _isFavorited;
+  // List<bool> _isFavorited;
 
   List<Card> _buildGridCards(
       BuildContext context, List<DocumentSnapshot> documents, String uid) {
@@ -165,17 +165,17 @@ class HomePageState extends State<HomePage>
               ),
             ),
             Container(
-              padding: EdgeInsets.fromLTRB(24.0, 8.0, 24.0, 0),
+              padding: EdgeInsets.fromLTRB(24.0, 4.0, 24.0, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
                     record.name,
-                    style: TextStyle(fontSize: 20.0, color: Colors.orange[800]),
+                    style: TextStyle(fontSize: 18.0, color: Colors.orange[800]),
                   ),
                   Text(
                     record.description,
-                    style: TextStyle(fontSize: 16.0, color: Colors.grey[800]),
+                    style: TextStyle(fontSize: 14.0, color: Colors.grey[800]),
                     maxLines: 2,
                   ),
                 ],
