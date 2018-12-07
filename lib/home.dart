@@ -274,6 +274,7 @@ class HomePageState extends State<HomePage>
                         MaterialPageRoute(
                           builder: (context) => DetailPage(
                                 // documentid: record.reference.documentID,
+                                creatorName: record.creatorName,
                                 userID: uid,
                                 documentID: record.uid,
                                 name: record.name,
@@ -416,6 +417,7 @@ class HomePageState extends State<HomePage>
                           MaterialPageRoute(
                             builder: (context) => DetailPage(
                                   // documentid: record.reference.documentID,
+                                  creatorName: record.creatorName,
                                   userID: uid,
                                   documentID: record.uid,
                                   name: record.name,

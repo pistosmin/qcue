@@ -203,6 +203,7 @@ class ViewQuestListState extends State<ViewQuestList>
                           MaterialPageRoute(
                             builder: (context) => DetailPage(
                                   // documentid: record.reference.documentID,
+                                  creatorName: record.creatorName,
                                   userID: uid,
                                   documentID: record.uid,
                                   name: record.name,
@@ -325,6 +326,7 @@ class Record {
   final String name;
   final String image;
   final String writer;
+  final String creatorName;
   final String description;
   final String uid;
   List<dynamic> participant;
@@ -336,6 +338,7 @@ class Record {
   Record.fromMap(Map<String, dynamic> map, {this.reference})
       : assert(map['name'] != null),
         assert(map['writer'] != null),
+        assert(map['creatorName'] != null),
         assert(map['description'] != null),
         assert(map['image'] != null),
         assert(map['favorites'] != null),
@@ -345,6 +348,7 @@ class Record {
         uid = reference.documentID,
         name = map['name'],
         writer = map['writer'],
+        creatorName = map['creatorName'],
         description = map['description'],
         image = map['image'],
         favorites = map['favorites'],

@@ -142,6 +142,7 @@ class CategoryPageState extends State<CategoryPage>
                               MaterialPageRoute(
                                 builder: (context) => DetailPage(
                                       // documentid: record.reference.documentID,
+                                      creatorName: record.creatorName,
                                       userID: uid,
                                       documentID: record.uid,
                                       name: record.name,
