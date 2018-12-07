@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'edit.dart';
+
 final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
 enum DialogDemoAction {
@@ -82,14 +83,14 @@ class DetailPageState extends State<DetailPage> {
                         widget.name,
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 30.0,
+                            fontSize: 25.0,
                             fontWeight: FontWeight.bold),
                       ),
                       Text(
                         widget.creatorName,
                         style: TextStyle(
                           color: Colors.grey[300],
-                          fontSize: 25.0,
+                          fontSize: 20.0,
                         ),
                       ),
                       Center(
@@ -251,27 +252,27 @@ class DetailPageState extends State<DetailPage> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.edit),
-            onPressed: (){
+            onPressed: () {
               print('edit');
-                    // print(record.uid);
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EditPage(
-                        // documentid: record.reference.documentID,
-                        userUid: widget.userID,
-                        documentID: widget.documentID,
-                        image: widget.image,
-                        name: widget.name,
-                        description: widget.description,
-                      ),
-                ));
-
+              // print(record.uid);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditPage(
+                          // documentid: record.reference.documentID,
+                          userUid: widget.userID,
+                          documentID: widget.documentID,
+                          image: widget.image,
+                          name: widget.name,
+                          description: widget.description,
+                        ),
+                  ));
             },
           ),
-          SizedBox(width: 10.0,),
+          SizedBox(
+            width: 10.0,
+          ),
         ],
-
       ),
       floatingActionButton: FloatingActionButton.extended(
         tooltip: 'ADD', // Tests depend on this label to exit the demo.
@@ -361,7 +362,7 @@ class DetailPageState extends State<DetailPage> {
                           widget.image,
                           width: double.infinity,
                           height: 180.0,
-                          fit: BoxFit.fill,
+                          fit: BoxFit.fitWidth,
                           color: Color.fromRGBO(0, 0, 0, 0.6),
                           colorBlendMode: BlendMode.darken,
                         ),
@@ -377,14 +378,14 @@ class DetailPageState extends State<DetailPage> {
                           widget.name,
                           style: TextStyle(
                               color: Colors.white,
-                              fontSize: 30.0,
+                              fontSize: 25.0,
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
                           widget.creatorName,
                           style: TextStyle(
                             color: Colors.grey[300],
-                            fontSize: 25.0,
+                            fontSize: 20.0,
                           ),
                         ),
                         Center(
@@ -394,6 +395,7 @@ class DetailPageState extends State<DetailPage> {
                               color: Colors.white,
                               fontSize: 15.0,
                             ),
+                            maxLines: 3,
                           ),
                         ),
                       ],
