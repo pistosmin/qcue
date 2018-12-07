@@ -269,6 +269,22 @@ class DetailPageState extends State<DetailPage> {
                   ));
             },
           ),
+          IconButton(
+            icon: Icon(Icons.delete_forever),
+            onPressed: () {
+              print('delete');
+              Firestore.instance
+                  .collection('ongoing_quests')
+                  .document(widget.documentID)
+                  .delete()
+                  .then((_) {
+                print('Quest Deleted');
+              }).catchError((e) {
+                print(e);
+                Navigator.of(context).pop();
+              });
+            },
+          ),
           SizedBox(
             width: 10.0,
           ),
