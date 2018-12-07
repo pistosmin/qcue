@@ -16,7 +16,6 @@ class MyPageState extends State<MyPage> {
   static GoogleSignIn _googleSignIn = GoogleSignIn();
   String _imageUrl =
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjhJ_fE8brBZTj3ZXyqbs00etqFS7shBubvpVai0p0NkY7fHaZ-g';
-
   final List<TimelineModel> list = [
     TimelineModel(id: "1", description: "Test 1", title: "Test 1"),
     TimelineModel(id: "2", description: "Test 2", title: "Test 2")
@@ -60,6 +59,7 @@ class MyPageState extends State<MyPage> {
             stream: FirebaseAuth.instance.currentUser().asStream(),
             builder:
                 (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
+
               if (snapshot.data.isAnonymous) {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -114,3 +114,4 @@ class MyPageState extends State<MyPage> {
             }));
   }
 }
+

@@ -85,13 +85,18 @@ class HomePageState extends State<HomePage>
     );
   }
 
+  Future<Query> getProgress() async{
+    var data = await Firestore.instance.collection('ongoing_quests').where('isClear', isEqualTo: 'false');
+    return data;
+  }
+
   Widget _buildProgressBody(BuildContext context, String uid) {
     return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance
+      stream: 
+      Firestore.instance
           .collection('ongoing_quests')
           .where('isClear', isEqualTo: 'false')
-          // .where('participant',
-              // arrayContains: uid) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
+          // .where('participant', arrayContains: uid) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
           .snapshots(),
       builder: (context, snapshot) {
         // CollectionReference col = Firestore.instance.collection("ongoing_quests");
@@ -104,7 +109,7 @@ class HomePageState extends State<HomePage>
             crossAxisCount: 1,
             padding: EdgeInsets.all(16.0),
             childAspectRatio: 15.0 / 11.0,
-            children: _buildGridCards(context, snapshot.data.documents, uid),
+            children: _buildGridProgressCards(context, snapshot.data.documents, uid),
           ),
         );
       },
@@ -124,7 +129,7 @@ class HomePageState extends State<HomePage>
             crossAxisCount: 1,
             padding: EdgeInsets.all(16.0),
             childAspectRatio: 15.0 / 11.0,
-            children: _buildGridCards(context, snapshot.data.documents, uid),
+            children: _buildGridDoneCards(context, snapshot.data.documents, uid),
           ),
         );
       },
@@ -189,7 +194,7 @@ class HomePageState extends State<HomePage>
               children: <Widget>[
                 SizedBox(width: 10,),
                 IconButton(
-                  icon: record.favorites ? Icon(Icons.favorite, color: Colors.red,) : Icon(Icons.favorite_border, color: Colors.grey,),
+                  icon: record.favorites ? Icon(Icons.favorite, color: Colors.red,) : Icon(Icons.favorite_border, color: Colors.orange[800],),
                   onPressed: (){
                     if (record.favorites == false) {
                       // _isFavorited[record] = true;
@@ -226,54 +231,324 @@ class HomePageState extends State<HomePage>
                       style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold), ),
                 ), 
                 SizedBox(width: 30,),
-                IconButton(
-                  icon: Icon(Icons.file_download, color: Colors.orange[900],),
-                  onPressed: () {
-                    if (record.participant.contains(uid)) {
-                      print('already have');
-                    } else {
-                      final List tempList = [];
-                      for (var x = 0;
-                          x < record.participant.length;
-                          x++) {
-                        tempList.add(record.participant.elementAt(x));
+                Container(
+                  child: record.isClear == "false" ? FlatButton(
+                    child: Text("DONE",
+                      style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold),),
+                    // icon: Icon(Icons.file_download, color: Colors.orange[900],),
+                    onPressed: () {
+                      if (record.isClear == 'true') {
+                        print('already done');
+                      } else {
+                        Firestore.instance
+                            .collection('ongoing_quests')
+                            .document(record.reference.documentID)
+                            .updateData({'isClear': 'true'});
+                        print('Quest done');
                       }
-                      print(tempList.toString());
-                      tempList.add(uid);
-                      print(tempList.toString());
+                    },
+                  )
+                  : FlatButton(
+                    child: Text("BACK",
+                      style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold),),
+                    // icon: Icon(Icons.file_download, color: Colors.orange[900],),
+                    onPressed: () {
+                      if (record.isClear == 'false') {
+                        print('already got back');
+                      } else {
+                        Firestore.instance
+                            .collection('ongoing_quests')
+                            .document(record.reference.documentID)
+                            .updateData({'isClear': 'false'});
+                        print('Got back');
+                      }
+                    },
+                  ),
+                ),
+                SizedBox(width: 15,),
+                FlatButton(
+                  onPressed: () {
+                    // print(record.uid);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailPage(
+                                // documentid: record.reference.documentID,
+                                creatorName: record.creatorName,
+                                userID: uid,
+                                documentID: record.uid,
+                                name: record.name,
+                                writer: record.writer,
+                                image: record.image,
+                                description: record.description,
+                              ),
+                        ));
+                  },
+                  child: new Text('MORE',
+                    style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold),),
+                ),
+                SizedBox(width: 10,),
+              ],
+            ),
+
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  List<Card> _buildGridProgressCards(
+      BuildContext context, List<DocumentSnapshot> documents, String uid) {
+    if (documents == null || documents.isEmpty) {
+      return const [];
+    }
+    // if (record.isClear == "false"){
+
+    return documents.map((ongoing_quests) {
+      // print('document :'+ongoing_quests.data.toString());
+      final record = Record.fromSnapshot(ongoing_quests);
+      // print(record.participant.contains('JGua38JkfYTbF7cFK6Q7cvXyIMw2'));
+      // ongoing_quests.documentID
+      // print('this is hero tag ${ongoing_quests.documentID}');
+        return Card(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Hero(
+                tag: '${ongoing_quests.documentID}',
+                // tag: 'detail',
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    child: 
+                    Image.network(
+                      record.image,
+                      width: double.infinity,
+                      height: 130.0,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.fromLTRB(24.0, 4.0, 24.0, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      record.name,
+                      style: TextStyle(fontSize: 18.0, color: Colors.orange[800]),
+                    ),
+                    Text(
+                      record.description,
+                      style: TextStyle(fontSize: 14.0, color: Colors.grey[800]),
+                      maxLines: 2,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 10,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(width: 10,),
+                  IconButton(
+                    icon: record.favorites ? Icon(Icons.favorite, color: Colors.red,) : Icon(Icons.favorite_border, color: Colors.orange[800],),
+                    onPressed: (){
+                      if (record.favorites == false) {
+                        // _isFavorited[record] = true;
+                        Firestore.instance
+                            .collection('ongoing_quests')
+                            .document(record.reference.documentID)
+                            .updateData({'favorites': true});
+                      } else {
+                        // _isFavorited = false;
+                        Firestore.instance
+                            .collection('ongoing_quests')
+                            .document(record.reference.documentID)
+                            .updateData({'favorites': false});
+                      }
+                    }
+                  ),
+                  GestureDetector(
+                    onTap: (){
+                      if (record.favorites == false) {
+                        // _isFavorited[] = true;
+                        Firestore.instance
+                            .collection('ongoing_quests')
+                            .document(record.reference.documentID)
+                            .updateData({'favorites': true});
+                      } else {
+                        // _isFavorited = false;
+                        Firestore.instance
+                            .collection('ongoing_quests')
+                            .document(record.reference.documentID)
+                            .updateData({'favorites': false});
+                      }
+                    },
+                    child: Text("LIKE",
+                        style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold), ),
+                  ), 
+                  SizedBox(width: 30,),
+                  FlatButton(
+                    child: Text("DONE",
+                      style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold),),
+                    // icon: Icon(Icons.file_download, color: Colors.orange[900],),
+                    onPressed: () {
+                      if (record.isClear == 'true') {
+                        print('already done');
+                      } else {
+                        Firestore.instance
+                            .collection('ongoing_quests')
+                            .document(record.reference.documentID)
+                            .updateData({'isClear': 'true'});
+                        print('Quest done');
+                      }
+                    },
+                  ),
+                  SizedBox(width: 15,),
+                  FlatButton(
+                    onPressed: () {
+                      // print(record.uid);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailPage(
+                                  // documentid: record.reference.documentID,
+                                  creatorName: record.creatorName,
+                                  userID: uid,
+                                  documentID: record.uid,
+                                  name: record.name,
+                                  writer: record.writer,
+                                  image: record.image,
+                                  description: record.description,
+                                ),
+                          ));
+                    },
+                    child: new Text('MORE',
+                      style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold),),
+                  ),
+                  SizedBox(width: 10,),
+                ],
+              ),
+            ],
+          ),
+        );
+    }).toList();
+  }
+
+  List<Card> _buildGridDoneCards(
+      BuildContext context, List<DocumentSnapshot> documents, String uid) {
+    if (documents == null || documents.isEmpty) {
+      return const [];
+    }
+    return documents.map((ongoing_quests) {
+      // print('document :'+ongoing_quests.data.toString());
+      final record = Record.fromSnapshot(ongoing_quests);
+      // print(record.participant.contains('JGua38JkfYTbF7cFK6Q7cvXyIMw2'));
+      // ongoing_quests.documentID
+      // print('this is hero tag ${ongoing_quests.documentID}');
+      return Card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Hero(
+              tag: '${ongoing_quests.documentID}',
+              // tag: 'detail',
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  child: 
+                  Image.network(
+                    record.image,
+                    width: double.infinity,
+                    height: 130.0,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.fromLTRB(24.0, 4.0, 24.0, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    record.name,
+                    style: TextStyle(fontSize: 18.0, color: Colors.orange[800]),
+                  ),
+                  Text(
+                    record.description,
+                    style: TextStyle(fontSize: 14.0, color: Colors.grey[800]),
+                    maxLines: 2,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 10,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(width: 10,),
+                IconButton(
+                  icon: record.favorites ? Icon(Icons.favorite, color: Colors.red,) : Icon(Icons.favorite_border, color: Colors.orange[800],),
+                  onPressed: (){
+                    if (record.favorites == false) {
+                      // _isFavorited[record] = true;
                       Firestore.instance
                           .collection('ongoing_quests')
                           .document(record.reference.documentID)
-                          .updateData({'participant': tempList});
-                      print('added');
+                          .updateData({'favorites': true});
+                    } else {
+                      // _isFavorited = false;
+                      Firestore.instance
+                          .collection('ongoing_quests')
+                          .document(record.reference.documentID)
+                          .updateData({'favorites': false});
                     }
-                  },
+                  }
                 ),
                 GestureDetector(
-                  onTap: () {
-                    if (record.participant.contains(uid)) {
-                      print('already have');
-                    } else {
-                      final List tempList = [];
-                      for (var x = 0;
-                          x < record.participant.length;
-                          x++) {
-                        tempList.add(record.participant.elementAt(x));
-                      }
-                      print(tempList.toString());
-                      tempList.add(uid);
-                      print(tempList.toString());
+                  onTap: (){
+                    if (record.favorites == false) {
+                      // _isFavorited[] = true;
                       Firestore.instance
                           .collection('ongoing_quests')
                           .document(record.reference.documentID)
-                          .updateData({'participant': tempList});
-                      print('added');
+                          .updateData({'favorites': true});
+                    } else {
+                      // _isFavorited = false;
+                      Firestore.instance
+                          .collection('ongoing_quests')
+                          .document(record.reference.documentID)
+                          .updateData({'favorites': false});
                     }
                   },
-                  child: Text("GET",
-                      style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold),),
-                ),
+                  child: Text("LIKE",
+                      style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold), ),
+                ), 
                 SizedBox(width: 30,),
+                FlatButton(
+                  child: Text("BACK",
+                    style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold),),
+                  // icon: Icon(Icons.file_download, color: Colors.orange[900],),
+                  onPressed: () {
+                    if (record.isClear == 'false') {
+                      print('already got back');
+                    } else {
+                      Firestore.instance
+                          .collection('ongoing_quests')
+                          .document(record.reference.documentID)
+                          .updateData({'isClear': 'false'});
+                      print('Got back');
+                    }
+                  },
+                ),
+                SizedBox(width: 15,),
                 FlatButton(
                   onPressed: () {
                     // print(record.uid);
@@ -304,6 +579,7 @@ class HomePageState extends State<HomePage>
       );
     }).toList();
   }
+
 
   Widget _mainBodyBuilder(context) {
     return StreamBuilder(
@@ -418,6 +694,7 @@ class Record {
   final String writer;
   final String description;
   final String uid;
+  final String isClear;
   final String creatorName;
   List<dynamic> participant;
   final bool favorites;
@@ -438,6 +715,7 @@ class Record {
         uid = reference.documentID,
         name = map['name'],
         writer = map['writer'],
+        isClear = map['isClear'],
         description = map['description'],
         image = map['image'],
         favorites = map['favorites'],
@@ -480,3 +758,175 @@ class Record {
 //     );
 //   }
 // }
+
+
+  // List<Card> _buildGridCards(
+  //     BuildContext context, List<DocumentSnapshot> documents, String uid) {
+  //   if (documents == null || documents.isEmpty) {
+  //     return const [];
+  //   }
+  //   return documents.map((ongoing_quests) {
+  //     // print('document :'+ongoing_quests.data.toString());
+  //     final record = Record.fromSnapshot(ongoing_quests);
+  //     // print(record.participant.contains('JGua38JkfYTbF7cFK6Q7cvXyIMw2'));
+  //     // ongoing_quests.documentID
+  //     // print('this is hero tag ${ongoing_quests.documentID}');
+  //     return Card(
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         mainAxisAlignment: MainAxisAlignment.start,
+  //         children: <Widget>[
+  //           Hero(
+  //             tag: '${ongoing_quests.documentID}',
+  //             // tag: 'detail',
+  //             child: Material(
+  //               color: Colors.transparent,
+  //               child: InkWell(
+  //                 child: 
+  //                 Image.network(
+  //                   record.image,
+  //                   width: double.infinity,
+  //                   height: 130.0,
+  //                   fit: BoxFit.cover,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //           Container(
+  //             padding: EdgeInsets.fromLTRB(24.0, 4.0, 24.0, 0),
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: <Widget>[
+  //                 Text(
+  //                   record.name,
+  //                   style: TextStyle(fontSize: 18.0, color: Colors.orange[800]),
+  //                 ),
+  //                 Text(
+  //                   record.description,
+  //                   style: TextStyle(fontSize: 14.0, color: Colors.grey[800]),
+  //                   maxLines: 2,
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //           SizedBox(height: 10,),
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             crossAxisAlignment: CrossAxisAlignment.center,
+  //             children: <Widget>[
+  //               SizedBox(width: 10,),
+  //               IconButton(
+  //                 icon: record.favorites ? Icon(Icons.favorite, color: Colors.red,) : Icon(Icons.favorite_border, color: Colors.orange[800],),
+  //                 onPressed: (){
+  //                   if (record.favorites == false) {
+  //                     // _isFavorited[record] = true;
+  //                     Firestore.instance
+  //                         .collection('ongoing_quests')
+  //                         .document(record.reference.documentID)
+  //                         .updateData({'favorites': true});
+  //                   } else {
+  //                     // _isFavorited = false;
+  //                     Firestore.instance
+  //                         .collection('ongoing_quests')
+  //                         .document(record.reference.documentID)
+  //                         .updateData({'favorites': false});
+  //                   }
+  //                 }
+  //               ),
+  //               GestureDetector(
+  //                 onTap: (){
+  //                   if (record.favorites == false) {
+  //                     // _isFavorited[] = true;
+  //                     Firestore.instance
+  //                         .collection('ongoing_quests')
+  //                         .document(record.reference.documentID)
+  //                         .updateData({'favorites': true});
+  //                   } else {
+  //                     // _isFavorited = false;
+  //                     Firestore.instance
+  //                         .collection('ongoing_quests')
+  //                         .document(record.reference.documentID)
+  //                         .updateData({'favorites': false});
+  //                   }
+  //                 },
+  //                 child: Text("LIKE",
+  //                     style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold), ),
+  //               ), 
+  //               SizedBox(width: 30,),
+  //               IconButton(
+  //                 icon: Icon(Icons.file_download, color: Colors.orange[900],),
+  //                 onPressed: () {
+  //                   if (record.participant.contains(uid)) {
+  //                     print('already have');
+  //                   } else {
+  //                     final List tempList = [];
+  //                     for (var x = 0;
+  //                         x < record.participant.length;
+  //                         x++) {
+  //                       tempList.add(record.participant.elementAt(x));
+  //                     }
+  //                     print(tempList.toString());
+  //                     tempList.add(uid);
+  //                     print(tempList.toString());
+  //                     Firestore.instance
+  //                         .collection('ongoing_quests')
+  //                         .document(record.reference.documentID)
+  //                         .updateData({'participant': tempList});
+  //                     print('added');
+  //                   }
+  //                 },
+  //               ),
+  //               GestureDetector(
+  //                 onTap: () {
+  //                   if (record.participant.contains(uid)) {
+  //                     print('already have');
+  //                   } else {
+  //                     final List tempList = [];
+  //                     for (var x = 0;
+  //                         x < record.participant.length;
+  //                         x++) {
+  //                       tempList.add(record.participant.elementAt(x));
+  //                     }
+  //                     print(tempList.toString());
+  //                     tempList.add(uid);
+  //                     print(tempList.toString());
+  //                     Firestore.instance
+  //                         .collection('ongoing_quests')
+  //                         .document(record.reference.documentID)
+  //                         .updateData({'participant': tempList});
+  //                     print('added');
+  //                   }
+  //                 },
+  //                 child: Text("GET",
+  //                     style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold),),
+  //               ),
+  //               SizedBox(width: 30,),
+  //               FlatButton(
+  //                 onPressed: () {
+  //                   // print(record.uid);
+  //                   Navigator.push(
+  //                       context,
+  //                       MaterialPageRoute(
+  //                         builder: (context) => DetailPage(
+  //                               // documentid: record.reference.documentID,
+  //                               userID: uid,
+  //                               documentID: record.uid,
+  //                               name: record.name,
+  //                               writer: record.writer,
+  //                               image: record.image,
+  //                               description: record.description,
+  //                             ),
+  //                       ));
+  //                 },
+  //                 child: new Text('MORE',
+  //                   style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold),),
+  //               ),
+  //               SizedBox(width: 10,),
+  //             ],
+  //           ),
+
+  //         ],
+  //       ),
+  //     );
+  //   }).toList();
+  // }
