@@ -17,7 +17,7 @@ class SearchPageState extends State<SearchPage> {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance.collection('ongoing_quests').where('name',isEqualTo :widget.query).snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return LinearProgressIndicator();
+        if (!snapshot.hasData) return CircularProgressIndicator();
         return Container(
           child: GridView.count(
             crossAxisCount: 1,

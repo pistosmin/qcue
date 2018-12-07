@@ -55,7 +55,7 @@ class CategoryPageState extends State<CategoryPage>
                   widget.category) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return LinearProgressIndicator();
+        if (!snapshot.hasData) return CircularProgressIndicator();
         return Center(
           child: OrientationBuilder(builder: (context, orientation) {
             return GridView.count(

@@ -74,7 +74,7 @@ class ViewQuestListState extends State<ViewQuestList>
               arrayContains: uid) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return LinearProgressIndicator();
+        if (!snapshot.hasData) return CircularProgressIndicator();
         return Container(
           child: GridView.count(
             crossAxisCount: 1,
@@ -95,7 +95,7 @@ class ViewQuestListState extends State<ViewQuestList>
               arrayContains: uid) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return LinearProgressIndicator();
+        if (!snapshot.hasData) return CircularProgressIndicator();
         return Container(
           child: GridView.count(
             crossAxisCount: 1,
@@ -115,7 +115,7 @@ class ViewQuestListState extends State<ViewQuestList>
           .where('isClear', isEqualTo: 'true')
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return LinearProgressIndicator();
+        if (!snapshot.hasData) return CircularProgressIndicator();
         return Container(
           child: GridView.count(
             crossAxisCount: 1,

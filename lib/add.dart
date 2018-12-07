@@ -260,7 +260,7 @@ class AddPageState extends State<AddPage> {
                                     final List tempList=[];
                                     tempList.add(snapshot.data.uid);
                                     
-                                    Firestore.instance.collection('ongoing_quests').document().setData({
+                                    Firestore.instance.collection('ongoing_quests').document(_questUid).setData({
                                       'questUID': _questUid,
                                       'name': _questTitle,
                                       'description': _description,

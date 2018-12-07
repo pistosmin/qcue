@@ -69,12 +69,10 @@ class HomePageState extends State<HomePage>
   Widget _buildBody(BuildContext context, String uid) {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
-          .collection('ongoing_quests')
-          .where('participant',
-              arrayContains: uid) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
+          .collection('ongoing_quests').where('participant', arrayContains: uid) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return LinearProgressIndicator();
+        if (!snapshot.hasData) return CircularProgressIndicator();
         return Container(
           child: GridView.count(
             crossAxisCount: 1,
@@ -92,12 +90,15 @@ class HomePageState extends State<HomePage>
       stream: Firestore.instance
           .collection('ongoing_quests')
           .where('isClear', isEqualTo: 'false')
-
           // .where('participant',
               // arrayContains: uid) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return LinearProgressIndicator();
+        // CollectionReference col = Firestore.instance.collection("ongoing_quests");
+        // Query participantQuery = col.where('participant', arrayContains: uid);
+        // Query progressQuery = participantQuery.where('isClear', isEqualTo: 'false');
+        // progressQuery.snapshots();
+        if (!snapshot.hasData) return CircularProgressIndicator();
         return Container(
           child: GridView.count(
             crossAxisCount: 1,
@@ -117,7 +118,7 @@ class HomePageState extends State<HomePage>
           .where('isClear', isEqualTo: 'true')
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return LinearProgressIndicator();
+        if (!snapshot.hasData) return CircularProgressIndicator();
         return Container(
           child: GridView.count(
             crossAxisCount: 1,
