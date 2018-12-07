@@ -125,7 +125,7 @@ class CategoryPageState extends State<CategoryPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    record.explanation,
+                    record.description,
                     style: TextStyle(fontSize: 15.0, color: Colors.grey[800]),
                   ),
                   Row(
@@ -143,7 +143,7 @@ class CategoryPageState extends State<CategoryPage>
                                       name: record.name,
                                       writer: record.writer,
                                       image: record.image,
-                                      explanation: record.explanation,
+                                      description: record.description,
                                     ),
                               ));
                         },
@@ -250,30 +250,30 @@ class Record {
   final String name;
   final String image;
   final String writer;
-  final String explanation;
+  final String description;
   final String uid;
   List<dynamic> participant;
-  final int favo;
-  final int down;
+  final int favorites;
+  final int downloads;
   final int comment;
   final DocumentReference reference;
 
   Record.fromMap(Map<String, dynamic> map, {this.reference})
       : assert(map['name'] != null),
         assert(map['writer'] != null),
-        assert(map['explanation'] != null),
+        assert(map['description'] != null),
         assert(map['image'] != null),
-        assert(map['favo'] != null),
-        assert(map['down'] != null),
+        assert(map['favorites'] != null),
+        assert(map['downloads'] != null),
         assert(map['comment'] != null),
         assert(map['participant'] != null),
         uid = reference.documentID,
         name = map['name'],
         writer = map['writer'],
-        explanation = map['explanation'],
+        description = map['description'],
         image = map['image'],
-        favo = map['favo'],
-        down = map['down'],
+        favorites = map['favorites'],
+        downloads = map['downloads'],
         comment = map['comment'],
         participant = map['participant'];
 

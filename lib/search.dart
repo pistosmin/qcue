@@ -64,7 +64,7 @@ class SearchPageState extends State<SearchPage> {
                   Text(record.writer,
                       style: TextStyle(
                           fontSize: 10.0, fontWeight: FontWeight.bold)),
-                  Text(record.explanation, style: TextStyle(fontSize: 13.0))
+                  Text(record.description, style: TextStyle(fontSize: 13.0))
                 ],
               ),
             )),
@@ -78,8 +78,11 @@ class SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Search'),
-        backgroundColor: Colors.orange[800],
+        title: Text("SEARCH", style: TextStyle(color: Colors.orange[800]),),
+        iconTheme: new IconThemeData(color: Colors.orange[800]),
+        elevation: 0.3,
+        centerTitle: true,
+        backgroundColor: Colors.orange[50],
       ),
       body: Column(
         children: <Widget>[
@@ -118,19 +121,19 @@ class Record {
   final String name;
   final String image;
   final String writer;
-  final String explanation;
+  final String description;
   final String uid;
   final DocumentReference reference;
 
   Record.fromMap(Map<String, dynamic> map, {this.reference})
       : assert(map['name'] != null),
         assert(map['writer'] != null),
-        assert(map['explanation'] != null),
+        assert(map['description'] != null),
         assert(map['image'] != null),
         uid = reference.documentID,
         name = map['name'],
         writer = map['writer'],
-        explanation = map['explanation'],
+        description = map['description'],
         image = map['image'];
 
   Record.fromSnapshot(DocumentSnapshot snapshot)

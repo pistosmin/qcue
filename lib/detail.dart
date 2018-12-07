@@ -20,14 +20,14 @@ class DetailPage extends StatefulWidget {
   
   String userID;
   String documentID;
-  String name, image, writer, explanation;
+  String name, image, writer, description;
   DetailPage(
       {Key key,
       @required this.userID,
       @required this.documentID,
       @required this.name,
       @required this.writer,
-      @required this.explanation,
+      @required this.description,
       @required this.image})
       : super(key: key);
   @override
@@ -93,7 +93,7 @@ class DetailPageState extends State<DetailPage> {
                       ),
                       Center(
                         child: Text(
-                          '\n\n\"' + widget.explanation + '\"',
+                          '\n\n\"' + widget.description + '\"',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 15.0,
@@ -170,6 +170,7 @@ class DetailPageState extends State<DetailPage> {
             });
           },
           title: Text(quest.name),
+          subtitle: Text(quest.description),
         ),
       );
     }).toList();
@@ -210,7 +211,13 @@ class DetailPageState extends State<DetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detail'),
+        title: Text("Detail", style: TextStyle(color: Colors.orange[800]),),
+        iconTheme: new IconThemeData(color: Colors.orange[800]),
+        elevation: 0.3,
+        centerTitle: true,
+        // backgroundColor: Colors.white,
+        backgroundColor: Colors.orange[50],
+
       ),
       
       floatingActionButton: FloatingActionButton.extended(
@@ -249,7 +256,7 @@ class DetailPageState extends State<DetailPage> {
                 new FlatButton(
                   child: const Text('ADD'),
                   onPressed: () {                    
-                    Firestore.instance.collection('ongoing_quests').document(widget.documentID).collection('quest').document().setData({'name':'${_nameController.text}','isClear':'false','Time':DateTime.now()});
+                    Firestore.instance.collection('ongoing_quests').document(widget.documentID).collection('quest').document().setData({'name':'${_nameController.text}', 'desctiption':'{$_descriptionController}','isClear':'false','Time':DateTime.now()});
                     Navigator.pop(context, DialogDemoAction.search); 
                   }
                 ),
@@ -263,29 +270,15 @@ class DetailPageState extends State<DetailPage> {
           _nameController.clear();
           _descriptionController.clear();
         },
-        label: const Text('ADD'),
+        label: const Text('STEP'),
         icon: const Icon(Icons.add),
       ),
       
       body: StreamBuilder(
         stream: FirebaseAuth.instance.currentUser().asStream(),
         builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
-          if (snapshot.data.isAnonymous) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Text('You are Guest'),
-                StreamBuilder(
-                  stream: FirebaseAuth.instance.currentUser().asStream(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<FirebaseUser> snapshot) {
-                    return Text('uid: ${snapshot.data.uid}');
-                  },
-                ),
-              ],
-            );
-          } else {
+            // print('this is hero detail tag ${widget.documentID}');
+
             return Container(
                 child: Column(
               children: <Widget>[
@@ -298,7 +291,7 @@ class DetailPageState extends State<DetailPage> {
                     //   colorBlendMode: BlendMode.darken,
                     // ),
                     Hero(
-                      tag: '${widget.documentID}',
+                      tag: 'detail',
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
@@ -333,7 +326,7 @@ class DetailPageState extends State<DetailPage> {
                           ),
                           Center(
                             child: Text(
-                              '\n\n\"' + widget.explanation + '\"',
+                              '\n\n\"' + widget.description + '\"',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 15.0,
@@ -348,7 +341,6 @@ class DetailPageState extends State<DetailPage> {
                 _questList(context),
               ],
             ));
-          }
         },
       ),
     );
@@ -357,16 +349,19 @@ class DetailPageState extends State<DetailPage> {
 
 class Quest {
   final String name;
-  // final int down;
+  final String description;
+  // final int downloads;
   final String isClear;
   final DocumentReference reference;
 
   Quest.fromMap(Map<String, dynamic> map, {this.reference})
       : assert(map['name'] != null),
-        // assert(map['down'] != null),
+        assert(map['description'] != null),
+        // assert(map['downloads'] != null),
         assert(map['isClear'] != null),
         name = map['name'],
-        // down = map['down'],
+        description = map['description'],
+        // downloads = map['downloads'],
         isClear = map['isClear'];
 
   Quest.fromSnapshot(DocumentSnapshot snapshot)
@@ -385,30 +380,30 @@ class Quest {
 //   },
 // );
 
-class PhotoHero extends StatelessWidget {
-  const PhotoHero({Key key, this.photo, this.onTap, this.width, this.height})
-      : super(key: key);
-  final String photo;
-  final VoidCallback onTap;
-  final double width;
-  final double height;
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Hero(
-        tag: photo,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            child: Image.network(
-              photo,
-              fit: BoxFit.fill,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// class PhotoHero extends StatelessWidget {
+//   const PhotoHero({Key key, this.photo, this.onTap, this.width, this.height})
+//       : super(key: key);
+//   final String photo;
+//   final VoidCallback onTap;
+//   final double width;
+//   final double height;
+//   Widget build(BuildContext context) {
+//     return SizedBox(
+//       width: width,
+//       height: height,
+//       child: Hero(
+//         tag: photo,
+//         child: Material(
+//           color: Colors.transparent,
+//           child: InkWell(
+//             onTap: onTap,
+//             child: Image.network(
+//               photo,
+//               fit: BoxFit.fill,
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

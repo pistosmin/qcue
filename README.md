@@ -1,4 +1,4 @@
-# project_qcue
+# QCUE
 
 A new Flutter project.
 
