@@ -561,6 +561,7 @@ class HomePageState extends State<HomePage>
                                 writer: record.writer,
                                 image: record.image,
                                 description: record.description,
+                                creatorName:record.creatorName,
                               ),
                         ));
                   },
@@ -692,6 +693,7 @@ class Record {
   final String description;
   final String uid;
   final String isClear;
+  final String creatorName;
   List<dynamic> participant;
   final bool favorites;
   final int downloads;
@@ -706,6 +708,7 @@ class Record {
         assert(map['favorites'] != null),
         assert(map['downloads'] != null),
         assert(map['comment'] != null),
+        assert(map['creatorName'] != null),
         assert(map['participant'] != null),
         uid = reference.documentID,
         name = map['name'],
@@ -715,6 +718,7 @@ class Record {
         image = map['image'],
         favorites = map['favorites'],
         downloads = map['downloads'],
+        creatorName = map['creatorName'],
         comment = map['comment'],
         participant = map['participant'];
 
