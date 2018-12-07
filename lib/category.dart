@@ -100,6 +100,7 @@ class CategoryPageState extends State<CategoryPage>
                 ),
               ),
             ),
+            SizedBox(height: 5,),
             Container(
               padding: EdgeInsets.fromLTRB(24.0, 4.0, 24.0, 0),
               child: Column(
