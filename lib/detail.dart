@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'edit.dart';
 final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
 enum DialogDemoAction {
@@ -144,9 +144,41 @@ class DetailPageState extends State<DetailPage> {
         isClearvalue = true;
       else
         isClearvalue = false;
-      return Card(
-        // child: Text(quest.name+' '+quest.isClear),
-        child: CheckboxListTile(
+      return 
+      Card(
+        child: 
+        // Row(
+        //   children: <Widget>[
+        //     CheckboxListTile(
+        //       value: isClearvalue,
+        //       onChanged: (bool value) {
+        //         setState(() {
+        //           if(!isClearvalue){
+        //             isClearvalue = true;
+        //             Firestore.instance
+        //                 .collection('ongoing_quests')
+        //                 .document(widget.documentID)
+        //                 .collection('quest')
+        //                 .document(ongoing_quests.documentID)
+        //                 .updateData({'isClear': 'true'});
+        //           }else{
+        //             isClearvalue = false;
+        //             Firestore.instance
+        //                 .collection('ongoing_quests')
+        //                 .document(widget.documentID)
+        //                 .collection('quest')
+        //                 .document(ongoing_quests.documentID)
+        //                 .updateData({'isClear': 'false'});
+        //           }
+        //         });
+        //       },
+        //       title: Text(quest.name),
+        //       subtitle: Text(quest.description),
+        //     ),
+        //     Text('F'),
+        //   ]
+        // ,)
+        CheckboxListTile(
           value: isClearvalue,
           onChanged: (bool value) {
             setState(() {
@@ -217,6 +249,29 @@ class DetailPageState extends State<DetailPage> {
         centerTitle: true,
         // backgroundColor: Colors.white,
         backgroundColor: Colors.orange[50],
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: (){
+              print('edit');
+                    // print(record.uid);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditPage(
+                        // documentid: record.reference.documentID,
+                        userUid: widget.userID,
+                        documentID: widget.documentID,
+                        image: widget.image,
+                        name: widget.name,
+                        description: widget.description,
+                      ),
+                ));
+
+            },
+          ),
+          SizedBox(width: 10.0,),
+        ],
 
       ),
       
@@ -254,15 +309,15 @@ class DetailPageState extends State<DetailPage> {
               ),
               actions: <Widget>[
                 new FlatButton(
+                  child: const Text('CANCEL'),
+                  onPressed: () { Navigator.pop(context, DialogDemoAction.cancel); }
+                ),
+                new FlatButton(
                   child: const Text('ADD'),
                   onPressed: () {                    
                     Firestore.instance.collection('ongoing_quests').document(widget.documentID).collection('quest').document().setData({'name':'${_nameController.text}', 'description':'${_descriptionController.text}','isClear':'false','Time':DateTime.now()});
                     Navigator.pop(context, DialogDemoAction.search); 
                   }
-                ),
-                new FlatButton(
-                  child: const Text('CANCEL'),
-                  onPressed: () { Navigator.pop(context, DialogDemoAction.cancel); }
                 ),
               ]
             )
