@@ -193,32 +193,7 @@ class CategoryPageState extends State<CategoryPage>
       appBar: AppBar(
         title: Text(widget.category),
         centerTitle: true,
-        // actions: <Widget>[
-        //   new IconButton(
-        //     icon: new Icon(
-        //       Icons.add,
-        //       color: Colors.white,
-        //     ),
-        //     onPressed: () {
-        //       Navigator.push(
-        //         context,
-        //         MaterialPageRoute(
-        //           builder: (context) => CreateQuestListPage(),
-        //         ),
-        //       );
-        //     },
-        //   ),
-        //   // backgroundColor: Colors.orange[800],
-        //   IconButton(
-        //     icon: new Icon(Icons.search),
-        //     onPressed: () {
-        //       Navigator.of(context).push(
-        //         new MaterialPageRoute(builder: (context) => new SearchPage()),
-        //       );
-        //     },
-        //   )
-        // ],
-        backgroundColor: Colors.orange[800],
+        backgroundColor: Colors.orange[50],
       ),
       drawer: CustomDrawer(),
       body: StreamBuilder(
