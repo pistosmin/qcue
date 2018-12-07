@@ -130,6 +130,8 @@ class HomePageState extends State<HomePage>
     );
   }
 
+  List<bool> _isFavorited;
+
   List<Card> _buildGridCards(
       BuildContext context, List<DocumentSnapshot> documents, String uid) {
     if (documents == null || documents.isEmpty) {
@@ -146,31 +148,6 @@ class HomePageState extends State<HomePage>
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            // Container(
-            //   padding: EdgeInsets.all(
-            //     8.0,
-            //   ),
-            //   child: Column(
-            //     crossAxisAlignment: CrossAxisAlignment.start,
-            //     children: <Widget>[
-            //       Text(
-            //         record.name,
-            //         style:
-            //             TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-            //       ),
-            //       Text(
-            //         record.writer,
-            //         style: TextStyle(fontSize: 15.0, color: Colors.grey[800]),
-            //       )
-            //     ],
-            //   ),
-            // ),
-            // Image.network(
-            //   record.image,
-            //   width: double.infinity,
-            //   height: 130.0,
-            //   fit: BoxFit.fill,
-            // ),
             Hero(
               tag: '${ongoing_quests.documentID}',
               // tag: 'detail',
@@ -182,49 +159,144 @@ class HomePageState extends State<HomePage>
                     record.image,
                     width: double.infinity,
                     height: 130.0,
-                    fit: BoxFit.fill,
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
             ),
             Container(
-              padding: EdgeInsets.all(
-                8.0,
-              ),
+              padding: EdgeInsets.fromLTRB(24.0, 8.0, 24.0, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
                     record.name,
-                    style: TextStyle(fontSize: 16.0, color: Colors.orange[800]),
+                    style: TextStyle(fontSize: 20.0, color: Colors.orange[800]),
                   ),
                   Text(
                     record.description,
-                    style: TextStyle(fontSize: 12.0, color: Colors.grey[800]),
-                  ),
-                  FlatButton(
-                    onPressed: () {
-                      // print(record.uid);
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailPage(
-                                  // documentid: record.reference.documentID,
-                                  userID: uid,
-                                  documentID: record.uid,
-                                  name: record.name,
-                                  writer: record.writer,
-                                  image: record.image,
-                                  description: record.description,
-                                ),
-                          ));
-                    },
-                    child: new Text('MORE',
-                      style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold),),
+                    style: TextStyle(fontSize: 16.0, color: Colors.grey[800]),
+                    maxLines: 2,
                   ),
                 ],
               ),
             ),
+            SizedBox(height: 10,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(width: 10,),
+                IconButton(
+                  icon: record.favorites ? Icon(Icons.favorite, color: Colors.red,) : Icon(Icons.favorite_border, color: Colors.grey,),
+                  onPressed: (){
+                    if (record.favorites == false) {
+                      // _isFavorited[record] = true;
+                      Firestore.instance
+                          .collection('ongoing_quests')
+                          .document(record.reference.documentID)
+                          .updateData({'favorites': true});
+                    } else {
+                      // _isFavorited = false;
+                      Firestore.instance
+                          .collection('ongoing_quests')
+                          .document(record.reference.documentID)
+                          .updateData({'favorites': false});
+                    }
+                  }
+                ),
+                GestureDetector(
+                  onTap: (){
+                    if (record.favorites == false) {
+                      // _isFavorited[] = true;
+                      Firestore.instance
+                          .collection('ongoing_quests')
+                          .document(record.reference.documentID)
+                          .updateData({'favorites': true});
+                    } else {
+                      // _isFavorited = false;
+                      Firestore.instance
+                          .collection('ongoing_quests')
+                          .document(record.reference.documentID)
+                          .updateData({'favorites': false});
+                    }
+                  },
+                  child: Text("LIKE",
+                      style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold), ),
+                ), 
+                SizedBox(width: 30,),
+                IconButton(
+                  icon: Icon(Icons.file_download, color: Colors.orange[900],),
+                  onPressed: () {
+                    if (record.participant.contains(uid)) {
+                      print('already have');
+                    } else {
+                      final List tempList = [];
+                      for (var x = 0;
+                          x < record.participant.length;
+                          x++) {
+                        tempList.add(record.participant.elementAt(x));
+                      }
+                      print(tempList.toString());
+                      tempList.add(uid);
+                      print(tempList.toString());
+                      Firestore.instance
+                          .collection('ongoing_quests')
+                          .document(record.reference.documentID)
+                          .updateData({'participant': tempList});
+                      print('added');
+                    }
+                  },
+                ),
+                GestureDetector(
+                  onTap: () {
+                    if (record.participant.contains(uid)) {
+                      print('already have');
+                    } else {
+                      final List tempList = [];
+                      for (var x = 0;
+                          x < record.participant.length;
+                          x++) {
+                        tempList.add(record.participant.elementAt(x));
+                      }
+                      print(tempList.toString());
+                      tempList.add(uid);
+                      print(tempList.toString());
+                      Firestore.instance
+                          .collection('ongoing_quests')
+                          .document(record.reference.documentID)
+                          .updateData({'participant': tempList});
+                      print('added');
+                    }
+                  },
+                  child: Text("GET",
+                      style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold),),
+                ),
+                SizedBox(width: 30,),
+                FlatButton(
+                  onPressed: () {
+                    // print(record.uid);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailPage(
+                                // documentid: record.reference.documentID,
+                                userID: uid,
+                                documentID: record.uid,
+                                name: record.name,
+                                writer: record.writer,
+                                image: record.image,
+                                description: record.description,
+                              ),
+                        ));
+                  },
+                  child: new Text('MORE',
+                    style: TextStyle(color: Theme.of(context).primaryColor, fontSize: 15.0, fontWeight: FontWeight.bold),),
+                ),
+                SizedBox(width: 10,),
+              ],
+            ),
+
           ],
         ),
       );
@@ -294,11 +366,12 @@ class HomePageState extends State<HomePage>
 
         floatingActionButton: FloatingActionButton.extended(
           tooltip: 'ADD', // Tests depend on this label to exit the demo.
+          
           onPressed: () {
             Navigator.pushNamed(context, "/add");
           },
-          label: const Text('QUEST'),
-          icon: const Icon(Icons.add),
+          label: const Text('QUEST', style: TextStyle(color: Colors.white),),
+          icon: const Icon(Icons.add, color: Colors.white,),
         ),
         appBar: AppBar(
           title: Text("QCUE", style: TextStyle(color: Colors.orange[800]),),
@@ -344,7 +417,7 @@ class Record {
   final String description;
   final String uid;
   List<dynamic> participant;
-  final int favorites;
+  final bool favorites;
   final int downloads;
   final int comment;
   final DocumentReference reference;

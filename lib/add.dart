@@ -239,7 +239,8 @@ class AddPageState extends State<AddPage> {
                             },
                           ),
                           RaisedButton(
-                            child: Text('CREATE'),
+                            child: Text('CREATE', style: TextStyle(color: Colors.white),),
+                            color: Theme.of(context).primaryColor,
                             onPressed: () async {
                                     if (_image == null) {
                                       _imageUrl = defaultImageUrl;
