@@ -137,6 +137,7 @@ class AddPageState extends State<AddPage> {
                           controller: _questTitleController,
                           autofocus: true,
                           decoration: InputDecoration(
+                            fillColor: Colors.white,
                             filled: true,
                             hintText: 'New Quest Title',
                           ),
@@ -160,6 +161,7 @@ class AddPageState extends State<AddPage> {
                         child: TextField(
                           controller: _questDescriptionController,
                           decoration: InputDecoration(
+                            fillColor: Colors.white,
                             filled: true,
                             hintText: 'Enter The Description',
                           ),
@@ -178,51 +180,43 @@ class AddPageState extends State<AddPage> {
                       SizedBox(
                         height: 10.0,
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        alignment: Alignment.bottomLeft,
-                        child: 
-                        InputDecorator(
-                          decoration: const InputDecoration(
-                            filled: true,
-                            labelText: 'Category',
-                            hintText: 'Choose an category',
-                            contentPadding: EdgeInsets.zero,
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                              alignment: Alignment.centerLeft,
+                              child: Text("Select Category"),
+                            ),
                           ),
-                          isEmpty: widget._activity == null,
-                          child: DropdownButton<String>(
-                            value: widget._activity,
-                            onChanged: (String newValue) {
-                              setState(() {
-                                widget._activity = newValue;
-                              });
-                              // print(widget._activity);
-                            },
-                            items: widget._allActivities.map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            alignment: Alignment.centerRight,
+                            child: new Theme(
+                              data: Theme.of(context).copyWith(
+                                canvasColor: Colors.white,
+                              ),
+                              child: new DropdownButton<String>(
+                              style: TextStyle(color: Colors.orange[800]),
+                              value: widget._activity,
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  widget._activity = newValue;
+                                });
+                                // print(widget._activity);
+                              },
+                              items: widget._allActivities.map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                            )
                           ),
-                        ),
-                        // TextField(
-                        //   controller: _questCategoryController,
-                        //   decoration: InputDecoration(
-                        //     filled: true,
-                        //     hintText: 'Select Category',
-                        //   ),
-                        //   onChanged: (String value) {
-                        //     setState(() {
-                        //       _hasTitle = value.isNotEmpty;
-                        //       if (_hasTitle) {
-                        //         category= value;
-                        //         _saveNeeded = true;
-                        //       }
-                        //     });
-                        //   }
-                        // ),
+                        ],
                       ),
+
                       
                       
                       SizedBox(

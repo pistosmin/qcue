@@ -270,8 +270,8 @@ class DetailPageState extends State<DetailPage> {
           _nameController.clear();
           _descriptionController.clear();
         },
-        label: const Text('STEP'),
-        icon: const Icon(Icons.add),
+        label: const Text('STEP', style: TextStyle(color: Colors.white),),
+        icon: const Icon(Icons.add, color: Colors.white,),
       ),
       
       body: StreamBuilder(
