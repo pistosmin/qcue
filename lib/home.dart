@@ -72,7 +72,7 @@ class HomePageState extends State<HomePage>
           .collection('ongoing_quests').where('participant', arrayContains: uid) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return CircularProgressIndicator();
+        if (!snapshot.hasData) return LinearProgressIndicator();
         return Container(
           child: GridView.count(
             crossAxisCount: 1,
@@ -98,7 +98,7 @@ class HomePageState extends State<HomePage>
         // Query participantQuery = col.where('participant', arrayContains: uid);
         // Query progressQuery = participantQuery.where('isClear', isEqualTo: 'false');
         // progressQuery.snapshots();
-        if (!snapshot.hasData) return CircularProgressIndicator();
+        if (!snapshot.hasData) return LinearProgressIndicator();
         return Container(
           child: GridView.count(
             crossAxisCount: 1,
@@ -118,7 +118,7 @@ class HomePageState extends State<HomePage>
           .where('isClear', isEqualTo: 'true')
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return CircularProgressIndicator();
+        if (!snapshot.hasData) return LinearProgressIndicator();
         return Container(
           child: GridView.count(
             crossAxisCount: 1,

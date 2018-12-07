@@ -48,7 +48,7 @@ class DetailPageState extends State<DetailPage> {
                   widget.documentID) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return CircularProgressIndicator();
+        if (!snapshot.hasData) return LinearProgressIndicator();
         return titleSection(context, snapshot.data.documents, uid);
       },
     );
@@ -119,7 +119,7 @@ class DetailPageState extends State<DetailPage> {
           .collection('quest') // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return CircularProgressIndicator();
+        if (!snapshot.hasData) return LinearProgressIndicator();
         return Expanded(
           child: GridView.count(
             crossAxisCount: 1,

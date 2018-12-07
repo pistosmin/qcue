@@ -12,26 +12,36 @@ class SearchPage extends StatefulWidget{
 
 class SearchPageState extends State<SearchPage> {
 
+  bool _searched = false;
   final _queryController = TextEditingController();
   Widget _buildBody(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance.collection('ongoing_quests').where('name',isEqualTo :widget.query).snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return CircularProgressIndicator();
-        return Container(
-          child: GridView.count(
-            crossAxisCount: 1,
-            padding: EdgeInsets.all(16.0),
-            childAspectRatio: 7.0 / 3.0,
-            children: _buildGridCards(context, snapshot.data.documents),
-          ),
-        );
+        if (!snapshot.hasData) return LinearProgressIndicator();
+        // else if (!snapshot.hasData && _searched == false) {
+        //   return Center(
+        //     child: Text("No Search Result"),
+        //   );
+        // }
+        else {
+          // _searched = false;
+          return Container(
+            child: GridView.count(
+              crossAxisCount: 1,
+              padding: EdgeInsets.all(16.0),
+              childAspectRatio: 7.0 / 3.0,
+              children: _buildGridCards(context, snapshot.data.documents),
+            ),
+          );
+        }
       },
     );
   }
 
   List<Card> _buildGridCards(
       BuildContext context, List<DocumentSnapshot> documents) {
+        
     if (documents == null || documents.isEmpty) {
       return const [];
     }
@@ -98,8 +108,9 @@ class SearchPageState extends State<SearchPage> {
             IconButton(
               icon: Icon(Icons.search),
               onPressed: (){
+                // _searched = true;
                 setState(() {
-                widget.searched=true;
+                  widget.searched=true;
                   widget.query=_queryController.text;
                   build(context);
                 });
