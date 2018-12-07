@@ -17,7 +17,7 @@ enum DialogDemoAction {
 const String _alertWithoutTitleText = 'Simple Alert Dialog';
 
 class DetailPage extends StatefulWidget {
-  
+  String creatorName;
   String userID;
   String documentID;
   String name, image, writer, description;
@@ -27,6 +27,7 @@ class DetailPage extends StatefulWidget {
       @required this.documentID,
       @required this.name,
       @required this.writer,
+      @required this.creatorName,
       @required this.description,
       @required this.image})
       : super(key: key);
@@ -85,7 +86,7 @@ class DetailPageState extends State<DetailPage> {
                             fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        widget.writer,
+                        widget.creatorName,
                         style: TextStyle(
                           color: Colors.grey[300],
                           fontSize: 25.0,
@@ -147,31 +148,59 @@ class DetailPageState extends State<DetailPage> {
       return Card(
         // child: Text(quest.name+' '+quest.isClear),
         child: CheckboxListTile(
-          value: isClearvalue,
-          onChanged: (bool value) {
-            setState(() {
-              if(!isClearvalue){
-                isClearvalue = true;
-                Firestore.instance
-                    .collection('ongoing_quests')
-                    .document(widget.documentID)
-                    .collection('quest')
-                    .document(ongoing_quests.documentID)
-                    .updateData({'isClear': 'true'});
-              }else{
-                isClearvalue = false;
-                Firestore.instance
-                    .collection('ongoing_quests')
-                    .document(widget.documentID)
-                    .collection('quest')
-                    .document(ongoing_quests.documentID)
-                    .updateData({'isClear': 'false'});
-              }
-            });
-          },
-          title: Text(quest.name),
-          subtitle: Text(quest.description),
-        ),
+            value: isClearvalue,
+            onChanged: (bool value) {
+              setState(() {
+                if (!isClearvalue) {
+                  isClearvalue = true;
+                  Firestore.instance
+                      .collection('ongoing_quests')
+                      .document(widget.documentID)
+                      .collection('quest')
+                      .document(ongoing_quests.documentID)
+                      .updateData({'isClear': 'true'});
+                } else {
+                  isClearvalue = false;
+                  Firestore.instance
+                      .collection('ongoing_quests')
+                      .document(widget.documentID)
+                      .collection('quest')
+                      .document(ongoing_quests.documentID)
+                      .updateData({'isClear': 'false'});
+                }
+              });
+            },
+            title: Row(
+              children: <Widget>[
+                Container(
+                  padding: EdgeInsets.only(top: 1.0),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.dehaze,
+                      color: Colors.orange[800],
+                    ),
+                    onPressed: () {
+                      Firestore.instance
+                          .collection('ongoing_quests')
+                          .document(widget.documentID)
+                          .collection('quest')
+                          .document(quest.id)
+                          .delete()
+                          .then((_) {
+                        print('Quest Deleted');
+                      }).catchError((e) {
+                        print(e);
+                      });
+                    },
+                  ),
+                ),
+                Text(quest.name),
+              ],
+            ),
+            subtitle: Container(
+              padding: EdgeInsets.only(left: 20.0),
+              child: Text(quest.description),
+            )),
       );
     }).toList();
   }
@@ -192,17 +221,16 @@ class DetailPageState extends State<DetailPage> {
       ),
     );
   }
-  
-  void showDemoDialog<T>({ BuildContext context, Widget child }) {
+
+  void showDemoDialog<T>({BuildContext context, Widget child}) {
     showDialog<T>(
       context: context,
       builder: (BuildContext context) => child,
-    )
-    .then<void>((T value) { // The value passed to Navigator.pop() or null.
+    ).then<void>((T value) {
+      // The value passed to Navigator.pop() or null.
       if (value != null) {
-        _scaffoldKey.currentState.showSnackBar(new SnackBar(
-          content: new Text('You selected: $value')
-        ));
+        _scaffoldKey.currentState.showSnackBar(
+            new SnackBar(content: new Text('You selected: $value')));
       }
     });
   }
@@ -211,136 +239,147 @@ class DetailPageState extends State<DetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Detail", style: TextStyle(color: Colors.orange[800]),),
+        title: Text(
+          "Detail",
+          style: TextStyle(color: Colors.orange[800]),
+        ),
         iconTheme: new IconThemeData(color: Colors.orange[800]),
         elevation: 0.3,
         centerTitle: true,
         // backgroundColor: Colors.white,
         backgroundColor: Colors.orange[50],
-
       ),
-      
       floatingActionButton: FloatingActionButton.extended(
         tooltip: 'ADD', // Tests depend on this label to exit the demo.
         onPressed: () {
           showDialog<DialogDemoAction>(
-            context: context,
-            child: new AlertDialog(
-              content:
-              Column(
-                children: <Widget>[
-                  SizedBox(height: 10.0,),
-                  new Text(
-                    'STEP ADD',
+              context: context,
+              child: new AlertDialog(
+                  content: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      new Text(
+                        'STEP ADD',
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      TextField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          filled: true,
+                          labelText: 'STEP Name',
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      TextField(
+                        controller: _descriptionController,
+                        decoration: InputDecoration(
+                          filled: true,
+                          labelText: 'STEP Description',
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 10.0,),
-                  TextField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      filled: true,
-                      labelText: 'STEP Name',
-                    ),
-                  ),
-                  SizedBox(height: 10.0,),
-                  TextField(
-                    controller: _descriptionController,
-                    decoration: InputDecoration(
-                      filled: true,
-                      labelText: 'STEP Description',
-                    ),
-                  ),
-
-                ],
-              ),
-              actions: <Widget>[
-                new FlatButton(
-                  child: const Text('ADD'),
-                  onPressed: () {                    
-                    Firestore.instance.collection('ongoing_quests').document(widget.documentID).collection('quest').document().setData({'name':'${_nameController.text}', 'description':'${_descriptionController.text}','isClear':'false','Time':DateTime.now()});
-                    Navigator.pop(context, DialogDemoAction.search); 
-                  }
-                ),
-                new FlatButton(
-                  child: const Text('CANCEL'),
-                  onPressed: () { Navigator.pop(context, DialogDemoAction.cancel); }
-                ),
-              ]
-            )
-          );
+                  actions: <Widget>[
+                    new FlatButton(
+                        child: const Text('ADD'),
+                        onPressed: () {
+                          Firestore.instance
+                              .collection('ongoing_quests')
+                              .document(widget.documentID)
+                              .collection('quest')
+                              .document()
+                              .setData({
+                            'name': '${_nameController.text}',
+                            'description': '${_descriptionController.text}',
+                            'isClear': 'false',
+                            'Time': DateTime.now()
+                          });
+                          Navigator.pop(context, DialogDemoAction.search);
+                        }),
+                    new FlatButton(
+                        child: const Text('CANCEL'),
+                        onPressed: () {
+                          Navigator.pop(context, DialogDemoAction.cancel);
+                        }),
+                  ]));
           _nameController.clear();
           _descriptionController.clear();
         },
-        label: const Text('STEP', style: TextStyle(color: Colors.white),),
-        icon: const Icon(Icons.add, color: Colors.white,),
+        label: const Text(
+          'STEP',
+          style: TextStyle(color: Colors.white),
+        ),
+        icon: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
-      
       body: StreamBuilder(
         stream: FirebaseAuth.instance.currentUser().asStream(),
         builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
-            // print('this is hero detail tag ${widget.documentID}');
-
-            return Container(
-                child: Column(
-              children: <Widget>[
-                Stack(
-                  children: <Widget>[
-                    // Image.network(
-                    //   widget.image,
-                    //   width: double.infinity,
-                    //   color: Color.fromRGBO(0, 0, 0, 0.7),
-                    //   colorBlendMode: BlendMode.darken,
-                    // ),
-                    Hero(
-                      tag: '${widget.documentID}',
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          child: 
-                          Image.network(
-                            widget.image,
-                            width: double.infinity,
-                            height: 130.0,
-                            fit: BoxFit.fill,
-                          ),
+          return Container(
+              child: Column(
+            children: <Widget>[
+              Stack(
+                children: <Widget>[
+                  Hero(
+                    tag: '${widget.documentID}',
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        child: Image.network(
+                          widget.image,
+                          width: double.infinity,
+                          height: 180.0,
+                          fit: BoxFit.fill,
+                          color: Color.fromRGBO(0, 0, 0, 0.6),
+                          colorBlendMode: BlendMode.darken,
                         ),
                       ),
                     ),
-                    Container(
-                      padding: EdgeInsets.only(top: 20.0, left: 15.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            widget.name,
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 30.0,
-                                fontWeight: FontWeight.bold),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(top: 20.0, left: 15.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          widget.name,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          widget.creatorName,
+                          style: TextStyle(
+                            color: Colors.grey[300],
+                            fontSize: 25.0,
                           ),
-                          Text(
-                            widget.writer,
+                        ),
+                        Center(
+                          child: Text(
+                            '\n\n\"' + widget.description + '\"',
                             style: TextStyle(
-                              color: Colors.grey[300],
-                              fontSize: 25.0,
+                              color: Colors.white,
+                              fontSize: 15.0,
                             ),
                           ),
-                          Center(
-                            child: Text(
-                              '\n\n\"' + widget.description + '\"',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15.0,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                _questList(context),
-              ],
-            ));
+                  ),
+                ],
+              ),
+              _questList(context),
+            ],
+          ));
         },
       ),
     );
@@ -352,6 +391,7 @@ class Quest {
   final String description;
   // final int downloads;
   final String isClear;
+  final String id;
   final DocumentReference reference;
 
   Quest.fromMap(Map<String, dynamic> map, {this.reference})
@@ -361,7 +401,7 @@ class Quest {
         assert(map['isClear'] != null),
         name = map['name'],
         description = map['description'],
-        // downloads = map['downloads'],
+        id = reference.documentID,
         isClear = map['isClear'];
 
   Quest.fromSnapshot(DocumentSnapshot snapshot)
