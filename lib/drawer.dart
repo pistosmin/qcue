@@ -317,52 +317,52 @@ class CustomDrawerState extends State<CustomDrawer> {
                     Navigator.pushNamed(context, "/mypage");
                   },
                 ),
-                ListTile(
-                  title: Container(
-                    padding: const EdgeInsets.only(bottom: 15.0),
-                    margin: const EdgeInsets.only(top: 15.0),
-                    decoration: BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(
-                              color: const Color.fromRGBO(0, 0, 0, 0.1),
-                              width: 1.2)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Container(
-                                margin: const EdgeInsets.only(right: 15.0),
-                                child: Icon(
-                                  Icons.settings,
-                                  size: 25.0,
-                                  color: const Color.fromRGBO(0, 0, 0, 0.3),
-                                  // color: Theme.of(context).primaryColor,
-                                  // color: Colors.orange[600],
-                                )),
-                            Text(
-                              '설정',
-                              style: TextStyle(
-                                fontSize: 20.0, fontFamily: 'NanumSquare',
-                                //  color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          '',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.pushNamed(context, "/setting");
-                  },
-                ),
+                // ListTile(
+                //   title: Container(
+                //     padding: const EdgeInsets.only(bottom: 15.0),
+                //     margin: const EdgeInsets.only(top: 15.0),
+                //     decoration: BoxDecoration(
+                //       border: Border(
+                //           bottom: BorderSide(
+                //               color: const Color.fromRGBO(0, 0, 0, 0.1),
+                //               width: 1.2)),
+                //     ),
+                //     child: Row(
+                //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //       children: <Widget>[
+                //         Row(
+                //           children: <Widget>[
+                //             Container(
+                //                 margin: const EdgeInsets.only(right: 15.0),
+                //                 child: Icon(
+                //                   Icons.settings,
+                //                   size: 25.0,
+                //                   color: const Color.fromRGBO(0, 0, 0, 0.3),
+                //                   // color: Theme.of(context).primaryColor,
+                //                   // color: Colors.orange[600],
+                //                 )),
+                //             Text(
+                //               '설정',
+                //               style: TextStyle(
+                //                 fontSize: 20.0, fontFamily: 'NanumSquare',
+                //                 //  color: Theme.of(context).primaryColor,
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //         Text(
+                //           '',
+                //           style: TextStyle(
+                //             fontSize: 18.0,
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                //   onTap: () {
+                //     Navigator.pushNamed(context, "/setting");
+                //   },
+                // ),
                 SizedBox(height: 270.0),
                 Divider(height: 0),
                 ListTile(
