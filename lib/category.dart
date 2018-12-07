@@ -99,7 +99,7 @@ class CategoryPageState extends State<CategoryPage>
                         TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    record.writer,
+                    record.creatorName,
                     style: TextStyle(fontSize: 15.0, color: Colors.grey[800]),
                   )
                 ],
@@ -252,6 +252,7 @@ class CategoryPageState extends State<CategoryPage>
 
 class Record {
   final String name;
+  final String creatorName;
   final String image;
   final String writer;
   final String description;
@@ -264,6 +265,7 @@ class Record {
 
   Record.fromMap(Map<String, dynamic> map, {this.reference})
       : assert(map['name'] != null),
+        assert(map['creatorName'] != null),
         assert(map['writer'] != null),
         assert(map['description'] != null),
         assert(map['image'] != null),
@@ -273,6 +275,7 @@ class Record {
         assert(map['participant'] != null),
         uid = reference.documentID,
         name = map['name'],
+        creatorName = map['creatorName'],
         writer = map['writer'],
         description = map['description'],
         image = map['image'],

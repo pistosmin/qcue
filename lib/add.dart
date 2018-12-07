@@ -9,6 +9,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
 class AddPage extends StatefulWidget {
+  final List<String> _allActivities = <String>['study', 'sports', 'diet', 'travel', 'cook', 'all'];
+  String _activity = 'all';
+
   @override
   AddPageState createState() {
     return  AddPageState();
@@ -16,7 +19,6 @@ class AddPage extends StatefulWidget {
 }
 
 class AddPageState extends State<AddPage> {
-
   final FirebaseStorage storage = FirebaseStorage.instance;
 
   final _questTitleController = TextEditingController();
@@ -179,23 +181,50 @@ class AddPageState extends State<AddPage> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         alignment: Alignment.bottomLeft,
-                        child: TextField(
-                          controller: _questCategoryController,
-                          decoration: InputDecoration(
+                        child: 
+                        InputDecorator(
+                          decoration: const InputDecoration(
                             filled: true,
-                            hintText: 'Select Category',
+                            labelText: 'Category',
+                            hintText: 'Choose an category',
+                            contentPadding: EdgeInsets.zero,
                           ),
-                          onChanged: (String value) {
-                            setState(() {
-                              _hasTitle = value.isNotEmpty;
-                              if (_hasTitle) {
-                                category= value;
-                                _saveNeeded = true;
-                              }
-                            });
-                          }
+                          isEmpty: widget._activity == null,
+                          child: DropdownButton<String>(
+                            value: widget._activity,
+                            onChanged: (String newValue) {
+                              setState(() {
+                                widget._activity = newValue;
+                              });
+                              // print(widget._activity);
+                            },
+                            items: widget._allActivities.map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
                         ),
+                        // TextField(
+                        //   controller: _questCategoryController,
+                        //   decoration: InputDecoration(
+                        //     filled: true,
+                        //     hintText: 'Select Category',
+                        //   ),
+                        //   onChanged: (String value) {
+                        //     setState(() {
+                        //       _hasTitle = value.isNotEmpty;
+                        //       if (_hasTitle) {
+                        //         category= value;
+                        //         _saveNeeded = true;
+                        //       }
+                        //     });
+                        //   }
+                        // ),
                       ),
+                      
+                      
                       SizedBox(
                         height: 10.0,
                       ),
@@ -229,56 +258,32 @@ class AddPageState extends State<AddPage> {
                                     _dateModified = DateTime.now();
                                     final List tempList=[];
                                     tempList.add(snapshot.data.uid);
-                                    if(_isClear){
-                                      Firestore.instance.collection('ongoing_quests').document().setData({
-                                        'questUID': _questUid,
-                                        'name': _questTitle,
-                                        'description': _description,
+                                    
+                                    Firestore.instance.collection('ongoing_quests').document().setData({
+                                      'questUID': _questUid,
+                                      'name': _questTitle,
+                                      'description': _description,
 
-                                        'image': _imageUrl,
+                                      'image': _imageUrl,
 
-                                        'writer': snapshot.data.uid,
-                                        'creatorName': snapshot.data.displayName,
-                                        
-                                        'category': category,
-                                        'isClear': "true",
+                                      'writer': snapshot.data.uid,
+                                      'creatorName': snapshot.data.displayName,
+                                      
+                                      'category': widget._activity.toString(),
+                                      // 'category': category,
+                                      'isClear': "false",
 
-                                        'comment': _comments,
-                                        'downloads': _downloads,
-                                        'favorites': _favoritesrites,
+                                      'comment': _comments,
+                                      'downloads': _downloads,
+                                      'favorites': _favoritesrites,
 
-                                        // 'participant': snapshot.data.uid,
-                                        'participant': tempList,
+                                      // 'participant': snapshot.data.uid,
+                                      'participant': tempList,
 
-                                        'dateCreated': _dateCreated,
-                                        'dateModified': _dateModified,
-                                      });
-                                    }else{
-                                      Firestore.instance.collection('ongoing_quests').document().setData({
-                                        'questUID': _questUid,
-                                        'name': _questTitle,
-                                        'description': _description,
+                                      'dateCreated': _dateCreated,
+                                      'dateModified': _dateModified,
+                                    });
 
-                                        'image': _imageUrl,
-
-                                        'writer': snapshot.data.uid,
-                                        'creatorName': snapshot.data.displayName,
-                                        
-                                        'category': category,
-                                        'isClear': "false",
-
-                                        'comment': _comments,
-                                        'downloads': _downloads,
-                                        'favorites': _favoritesrites,
-
-                                        // 'participant': snapshot.data.uid,
-                                        'participant': tempList,
-
-                                        'dateCreated': _dateCreated,
-                                        'dateModified': _dateModified,
-                                      });
-
-                                    }
                                 
                                     print('Upload Complete');
                                     Navigator.pop(context);
