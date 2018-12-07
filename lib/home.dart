@@ -331,7 +331,6 @@ class Record {
   List<dynamic> participant;
   final int favo;
   final int down;
-  final int comment;
   final DocumentReference reference;
 
   Record.fromMap(Map<String, dynamic> map, {this.reference})
@@ -341,7 +340,6 @@ class Record {
         assert(map['image'] != null),
         assert(map['favo'] != null),
         assert(map['down'] != null),
-        assert(map['comment'] != null),
         assert(map['participant'] != null),
         uid = reference.documentID,
         name = map['name'],
@@ -350,7 +348,6 @@ class Record {
         image = map['image'],
         favo = map['favo'],
         down = map['down'],
-        comment = map['comment'],
         participant = map['participant'];
 
   Record.fromSnapshot(DocumentSnapshot snapshot)
