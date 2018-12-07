@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
     );
     assert(user.email != null);
     assert(user.displayName != null);
-    assert(!user.isAnonymous);
+    // assert(!user.isAnonymous);
     assert(await user.getIdToken() != null);
 
     final FirebaseUser currentUser = await _auth.currentUser();
