@@ -176,6 +176,52 @@ class CustomDrawerState extends State<CustomDrawer> {
                     Navigator.pushNamed(context, "/add");
                   },
                 ),
+                ListTile(
+                  title: Container(
+                    padding: const EdgeInsets.only(bottom: 15.0),
+                    margin: const EdgeInsets.only(top: 15.0),
+                    decoration: BoxDecoration(
+                      border: Border(
+                          bottom: BorderSide(
+                              color: const Color.fromRGBO(0, 0, 0, 0.1),
+                              width: 1.2)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            Container(
+                                margin: const EdgeInsets.only(right: 15.0),
+                                child: Icon(
+                                  Icons.grid_on,
+                                  size: 25.0,
+                                  color: const Color.fromRGBO(0, 0, 0, 0.3),
+                                  // color: Theme.of(context).primaryColor,
+                                  // color: Colors.orange[600],
+                                )),
+                            Text(
+                              '카테고리별 조회',
+                              style: TextStyle(
+                                fontSize: 20.0, fontFamily: 'NanumSquare',
+                                //  color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pushNamed(context, "/gridcategory");
+                  },
+                ),
                 // ListTile(
                 //   title: Container(
                 //     padding: const EdgeInsets.only(bottom: 15.0),

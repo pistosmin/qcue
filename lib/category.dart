@@ -8,7 +8,8 @@ import 'add.dart';
 import 'search.dart';
 import 'detail.dart';
 import 'createQuestList.dart';
-import 'dropMenu.dart';
+// import 'dropMenu.dart';
+import 'drawer.dart';
 
 class CategoryPage extends StatefulWidget {
   String category;
@@ -58,9 +59,10 @@ class CategoryPageState extends State<CategoryPage>
         return Center(
           child: OrientationBuilder(builder: (context, orientation) {
             return GridView.count(
-              crossAxisCount: orientation == Orientation.portrait ? 2 : 3,
+              crossAxisCount: 1,
+              // crossAxisCount: orientation == Orientation.portrait ? 2 : 3,
               padding: EdgeInsets.all(16.0),
-              childAspectRatio: 8.0 / 9.0,
+              childAspectRatio: 8.0 / 8.0,
               children: _buildGridCards(context, snapshot.data.documents, uid),
             );
           }),
@@ -104,7 +106,8 @@ class CategoryPageState extends State<CategoryPage>
               ),
             ),
             Hero(
-              tag: 'detail',
+              // tag: '$uid',
+              tag: '${ongoing_quests.documentID}',
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -190,31 +193,31 @@ class CategoryPageState extends State<CategoryPage>
       appBar: AppBar(
         title: Text(widget.category),
         centerTitle: true,
-        actions: <Widget>[
-          new IconButton(
-            icon: new Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CreateQuestListPage(),
-                ),
-              );
-            },
-          ),
-          // backgroundColor: Colors.orange[800],
-          IconButton(
-            icon: new Icon(Icons.search),
-            onPressed: () {
-              Navigator.of(context).push(
-                new MaterialPageRoute(builder: (context) => new SearchPage()),
-              );
-            },
-          )
-        ],
+        // actions: <Widget>[
+        //   new IconButton(
+        //     icon: new Icon(
+        //       Icons.add,
+        //       color: Colors.white,
+        //     ),
+        //     onPressed: () {
+        //       Navigator.push(
+        //         context,
+        //         MaterialPageRoute(
+        //           builder: (context) => CreateQuestListPage(),
+        //         ),
+        //       );
+        //     },
+        //   ),
+        //   // backgroundColor: Colors.orange[800],
+        //   IconButton(
+        //     icon: new Icon(Icons.search),
+        //     onPressed: () {
+        //       Navigator.of(context).push(
+        //         new MaterialPageRoute(builder: (context) => new SearchPage()),
+        //       );
+        //     },
+        //   )
+        // ],
         backgroundColor: Colors.orange[800],
       ),
       drawer: CustomDrawer(),

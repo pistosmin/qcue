@@ -231,14 +231,14 @@ class DetailPageState extends State<DetailPage> {
                 children: <Widget>[
                   SizedBox(height: 10.0,),
                   new Text(
-                    'Quset Add',
+                    'STEP ADD',
                   ),
                   SizedBox(height: 10.0,),
                   TextField(
                     controller: _nameController,
                     decoration: InputDecoration(
                       filled: true,
-                      labelText: 'Quest Name',
+                      labelText: 'STEP Name',
                     ),
                   ),
                   SizedBox(height: 10.0,),
@@ -246,7 +246,7 @@ class DetailPageState extends State<DetailPage> {
                     controller: _descriptionController,
                     decoration: InputDecoration(
                       filled: true,
-                      labelText: 'Quest Description',
+                      labelText: 'STEP Description',
                     ),
                   ),
 
@@ -256,7 +256,7 @@ class DetailPageState extends State<DetailPage> {
                 new FlatButton(
                   child: const Text('ADD'),
                   onPressed: () {                    
-                    Firestore.instance.collection('ongoing_quests').document(widget.documentID).collection('quest').document().setData({'name':'${_nameController.text}', 'desctiption':'{$_descriptionController}','isClear':'false','Time':DateTime.now()});
+                    Firestore.instance.collection('ongoing_quests').document(widget.documentID).collection('quest').document().setData({'name':'${_nameController.text}', 'description':'${_descriptionController.text}','isClear':'false','Time':DateTime.now()});
                     Navigator.pop(context, DialogDemoAction.search); 
                   }
                 ),
@@ -291,7 +291,7 @@ class DetailPageState extends State<DetailPage> {
                     //   colorBlendMode: BlendMode.darken,
                     // ),
                     Hero(
-                      tag: 'detail',
+                      tag: '${widget.documentID}',
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(

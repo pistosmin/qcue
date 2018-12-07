@@ -91,8 +91,10 @@ class HomePageState extends State<HomePage>
     return StreamBuilder<QuerySnapshot>(
       stream: Firestore.instance
           .collection('ongoing_quests')
-          .where('participant',
-              arrayContains: uid) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
+          .where('isClear', isEqualTo: 'false')
+
+          // .where('participant',
+              // arrayContains: uid) // 이부분으로써 uid가 participant에 있는지를 확인 할 수 있다.
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LinearProgressIndicator();
@@ -170,7 +172,8 @@ class HomePageState extends State<HomePage>
             //   fit: BoxFit.fill,
             // ),
             Hero(
-              tag: 'detail',
+              tag: '${ongoing_quests.documentID}',
+              // tag: 'detail',
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -192,8 +195,12 @@ class HomePageState extends State<HomePage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
+                    record.name,
+                    style: TextStyle(fontSize: 16.0, color: Colors.orange[800]),
+                  ),
+                  Text(
                     record.description,
-                    style: TextStyle(fontSize: 15.0, color: Colors.grey[800]),
+                    style: TextStyle(fontSize: 12.0, color: Colors.grey[800]),
                   ),
                   FlatButton(
                     onPressed: () {
@@ -284,6 +291,15 @@ class HomePageState extends State<HomePage>
     return WillPopScope(
       onWillPop: onWillPop,
       child: Scaffold(
+
+        floatingActionButton: FloatingActionButton.extended(
+          tooltip: 'ADD', // Tests depend on this label to exit the demo.
+          onPressed: () {
+            Navigator.pushNamed(context, "/add");
+          },
+          label: const Text('QUEST'),
+          icon: const Icon(Icons.add),
+        ),
         appBar: AppBar(
           title: Text("QCUE", style: TextStyle(color: Colors.orange[800]),),
           iconTheme: new IconThemeData(color: Colors.orange[800]),

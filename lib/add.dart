@@ -227,29 +227,59 @@ class AddPageState extends State<AddPage> {
 
                                     _dateCreated = DateTime.now();
                                     _dateModified = DateTime.now();
+                                    final List tempList=[];
+                                    tempList.add(snapshot.data.uid);
+                                    if(_isClear){
+                                      Firestore.instance.collection('ongoing_quests').document().setData({
+                                        'questUID': _questUid,
+                                        'name': _questTitle,
+                                        'description': _description,
 
-                                    Firestore.instance.collection('ongoing_quests').document().setData({
-                                      'questUID': _questUid,
-                                      'name': _questTitle,
-                                      'description': _description,
+                                        'image': _imageUrl,
 
-                                      'image': _imageUrl,
+                                        'writer': snapshot.data.uid,
+                                        'creatorName': snapshot.data.displayName,
+                                        
+                                        'category': category,
+                                        'isClear': "true",
 
-                                      'writer': snapshot.data.uid,
-                                      'creatorName': snapshot.data.displayName,
-                                      
-                                      'category': category,
-                                      'isClear': _isClear,
+                                        'comment': _comments,
+                                        'downloads': _downloads,
+                                        'favorites': _favoritesrites,
 
-                                      'comment': _comments,
-                                      'downloads': _downloads,
-                                      'favorites': _favoritesrites,
+                                        // 'participant': snapshot.data.uid,
+                                        'participant': tempList,
 
-                                      'participant': snapshot.data.uid,
+                                        'dateCreated': _dateCreated,
+                                        'dateModified': _dateModified,
+                                      });
+                                    }else{
+                                      Firestore.instance.collection('ongoing_quests').document().setData({
+                                        'questUID': _questUid,
+                                        'name': _questTitle,
+                                        'description': _description,
 
-                                      'dateCreated': _dateCreated,
-                                      'dateModified': _dateModified,
-                                    });
+                                        'image': _imageUrl,
+
+                                        'writer': snapshot.data.uid,
+                                        'creatorName': snapshot.data.displayName,
+                                        
+                                        'category': category,
+                                        'isClear': "false",
+
+                                        'comment': _comments,
+                                        'downloads': _downloads,
+                                        'favorites': _favoritesrites,
+
+                                        // 'participant': snapshot.data.uid,
+                                        'participant': tempList,
+
+                                        'dateCreated': _dateCreated,
+                                        'dateModified': _dateModified,
+                                      });
+
+                                    }
+                                
                                     print('Upload Complete');
                                     Navigator.pop(context);
                                   }
